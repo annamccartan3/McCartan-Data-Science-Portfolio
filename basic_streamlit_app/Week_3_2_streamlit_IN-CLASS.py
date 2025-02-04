@@ -1,6 +1,9 @@
 # Import the Streamlit library
 import streamlit as st
 
+# Navigate
+# ls
+
 # Display a simple text message
 
 # Display a large title on the app
