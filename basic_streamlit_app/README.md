@@ -1,4 +1,4 @@
-# Welcome to Anna McCartan's Streamlit App!
+# Welcome to DogFinder!
 
 A Streamlit app for tracking dog breeds in the United States of America.
 
