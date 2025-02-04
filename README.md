@@ -4,7 +4,6 @@ A collection of projects completed during Introduction to Data Science, Spring 2
 
 ## Streamlit
 - Basic App
-
 <br><br>
 ## More
 - Project #1
