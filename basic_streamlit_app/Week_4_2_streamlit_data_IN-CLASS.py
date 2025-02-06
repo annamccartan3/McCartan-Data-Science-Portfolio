@@ -48,10 +48,16 @@ st.dataframe(df2)
 
 # Using a selectbox to allow users to filter data by city
 # Students learn how to use widgets in Streamlit for interactivity
+salary = st.slider("Choose a salary range:",
+                    min_value = df2["Salary"].min(),
+                    max_value = df2["Salary"].max())
 
 # Filtering the DataFrame based on user selection
+st.write(f"Salaries under {salary}:")
+st.dataframe(df2[df2['Salary'] <= salary])
 
 # Display the filtered results
+
 
 # ================================
 # Summary of Learning Progression:
