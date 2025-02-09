@@ -1,17 +1,12 @@
+# import necessary packages
 import streamlit as st
 import pandas as pd
-
-# app should display:
-    # A title using st.title()
-    # A short description of what the app does.
-    # A sample DataFrame (to be loaded from a CSV, you may use something like Palmer's Penguins here Download Palmer's Penguins here).
-    # Interactive filtering options (e.g., dropdowns, sliders, etc.).
 
 # title using st.title()
 st.title("DogFinder!")
 st.subheader("A Streamlit app for tracking dog breeds.")
 # short description of what the app does
-st.write("Use the dropdown and sliders to filter by dog breed group and maximum heights and weights.")
+st.write("Use the dropdown and sliders to filter by dog breed group and maximum heights and weights. Graph differences in traits such as trainability or energy level.")
 
 # sample DataFrame of dog breed data, loaded from a CSV
 dog_df = pd.read_csv("basic_streamlit_app/data/my_data.csv")
@@ -32,6 +27,17 @@ weight = st.slider("Choose a maximum weight:",
 
 # filter dataframe based on user choices
 st.write(f"{group} under {height} cm and {weight} kg:")
-st.dataframe(dog_df[(dog_df['Dog Breed Group']==group)&
+filtered_df = dog_df[(dog_df['Dog Breed Group']==group)&
                     (dog_df['Avg. Height, cm'] <= height)&
-                    (dog_df['Avg. Weight, kg'] <= weight)])
+                    (dog_df['Avg. Weight, kg'] <= weight)]
+st.dataframe(filtered_df)
+
+# graph desired trait
+trait = st.selectbox("Select a Trait to Graph", 
+                        ["Adaptability", 
+                        "All Around Friendliness", 
+                        "Trainability", 
+                        "Intelligence",
+                        "Energy Level", 
+                        "Exercise Needs"])
+st.bar_chart(data=filtered_df, x="Breed Name", y=trait)
