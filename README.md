@@ -5,7 +5,7 @@ A collection of projects completed during Introduction to Data Science, Spring 2
 ## Streamlit
 - DogFinder
 #### DogFinder is an interactive Streamlit app for tracking dog breed characteristics.
-Run the app from this repository using the following command:
+Run the app from the portfolio repository using the following command:
  ```
  streamlit run basic_streamlit_app/main.py
  ```
