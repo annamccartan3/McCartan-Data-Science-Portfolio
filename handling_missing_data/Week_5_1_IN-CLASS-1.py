@@ -30,6 +30,7 @@ df = pd.read_csv("titanic.csv")
 # ------------------------------------------------------------------------------
 # Show key statistical measures like mean, standard deviation, etc.
 st.write("**Summary Statistics**")
+st.write(df.shape)
 st.dataframe(df.describe())
 
 # ------------------------------------------------------------------------------
