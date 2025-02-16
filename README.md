@@ -4,7 +4,7 @@ A collection of projects completed during Introduction to Data Science, Spring 2
 
 ## Streamlit
 - DogFinder
-#### DogFinder is an interactive Streamlit app for tracking dog breed characteristics.
+  - DogFinder is an interactive Streamlit app for tracking dog breed characteristics.
 
 ## Models
 - linear regression
