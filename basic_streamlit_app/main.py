@@ -9,7 +9,7 @@ st.subheader("A Streamlit app for tracking dog breeds.")
 st.write("Use the dropdown and sliders to filter by dog breed group and maximum heights and weights. Graph differences in traits such as trainability or energy level.")
 
 # sample DataFrame of dog breed data, loaded from a CSV
-dog_df = pd.read_csv("basic_streamlit_app/data/my_data.csv")
+dog_df = pd.read_csv("data/my_data.csv")
 # drop unnecessary metrics
 dog_df = dog_df.drop(["Detailed Description Link", "Height", "Weight", "Life Span"], axis=1)
 
