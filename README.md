@@ -12,5 +12,5 @@ A collection of projects completed during Introduction to Data Science, Spring 2
   - DogFinder is an interactive Streamlit app for tracking dog breed characteristics.
 <br><br>
 ## Machine Learning
-- Topic 1
+- [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)
 <br><br>
