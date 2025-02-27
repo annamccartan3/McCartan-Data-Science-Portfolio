@@ -5,8 +5,7 @@ A collection of projects completed during Introduction to Data Science, Spring 2
 ## Data Management
 - [Handling Missing Data](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/handling_missing_data)
 - [Tidy Data](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/tidy_data)
-  - Gold Standard
-    - [Gold Standard](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project) is a Jupyter Notebook for tidying and visualizing data on 2008 Olympic medalists. 
+  - [Gold Standard](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project): a Jupyter Notebook for tidying and visualizing data on 2008 Olympic medalists. 
 - [Data Wrangling](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/data_wrangling)
 <br><br>
 ## App Design with Streamlit
