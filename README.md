@@ -9,8 +9,7 @@ A collection of projects completed during Introduction to Data Science, Spring 2
 - [Data Wrangling](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/data_wrangling)
 <br><br>
 ## App Design with Streamlit
-- [DogFinder](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app)
-  - DogFinder is an interactive Streamlit app for tracking dog breed characteristics.
+- [DogFinder](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app): an interactive Streamlit app for tracking dog breed characteristics.
 <br><br>
 ## Machine Learning
 - [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)
