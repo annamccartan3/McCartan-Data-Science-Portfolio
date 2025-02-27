@@ -5,6 +5,7 @@ A collection of projects completed during Introduction to Data Science, Spring 2
 ## Data Management
 - [Handling Missing Data](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/handling_missing_data)
 - [Tidy Data](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/tidy_data)
+  - [Olympic Medalists 2008](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project)
 - [Data Wrangling](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/data_wrangling)
 <br><br>
 ## App Design with Streamlit
