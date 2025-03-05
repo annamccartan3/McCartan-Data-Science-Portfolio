@@ -1,6 +1,8 @@
-# Welcome to Anna McCartan's Data Science Portfolio!
+# Anna McCartan's Data Science Portfolio!
 
-A collection of projects completed during Introduction to Data Science, Spring 2025. Topics explored include data management, app design, machine learning, and more!
+Welcome to my **Data Science Portfolio**, a collection of projects from my *Introduction to Data Science* course (Spring 2025). This repository highlights my work in **data management, app design, and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
+
+Each project includes a link to its repository, where you’ll find code, documentation, and instructions to view or replicate the analysis.
 
 ## Data Management
 - [Handling Missing Data](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/handling_missing_data)
