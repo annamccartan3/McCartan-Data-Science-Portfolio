@@ -1,4 +1,4 @@
-# Anna McCartan's Data Science Portfolio!
+# :sunflower: Anna McCartan's Data Science Portfolio!
 
 Welcome to my **Data Science Portfolio**, a collection of projects from my Introduction to Data Science course (Spring 2025). This repository highlights my work in **data management, app design, and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
 
