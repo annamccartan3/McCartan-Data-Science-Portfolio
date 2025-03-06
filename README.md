@@ -1,6 +1,6 @@
 # Anna McCartan's Data Science Portfolio!
 
-Welcome to my **Data Science Portfolio**, a collection of projects from my *Introduction to Data Science* course (Spring 2025). This repository highlights my work in **data management, app design, and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
+Welcome to my **Data Science Portfolio**, a collection of projects from my Introduction to Data Science course (Spring 2025). This repository highlights my work in **data management, app design, and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
 
 Each project includes a link to its repository, where you’ll find code, documentation, and instructions to view or replicate the analysis.
 
@@ -26,7 +26,7 @@ Each project includes a link to its repository, where you’ll find code, docume
 <br><br>
 ---
 ### Next Steps
-I’m always expanding my skills. Stay tuned for more projects in **data visualization, deep learning, and statistical modeling**!  
+I’m always expanding my skills. Stay tuned for more projects in **data visualization, app development, and statistical modeling**!  
 
 ### Connect with me
-Feel free to reach out via my [**GitHub**](https://github.com/annamccartan3) profile or [**LinkedIn**](https://www.linkedin.com/in/anna-mccartan/) for collaboration or feedback.  
+Feel free to reach out through my [GitHub](https://github.com/annamccartan3) profile or [LinkedIn](https://www.linkedin.com/in/anna-mccartan/)!  
