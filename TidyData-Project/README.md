@@ -43,13 +43,6 @@ import matplotlib.pyplot as plt
 
 The dataset used in this project is adapted from [this source](https://edjnet.github.io/OlympicsGoNUTS/2008/). It contains **1,875** records of Olympic medalists from the **2008 Summer Olympics**, covering **75 different events** across multiple sports.  
 
-### Pre-processing Steps  
-Before analysis, the dataset undergoes the following cleaning steps:  
-✔ Handling missing values  
-✔ Converting data types for consistency  
-✔ Standardizing column names  
-✔ Reshaping the data into a tidy format  
-
 ---
 
 ## Features & Functionality  
