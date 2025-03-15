@@ -61,5 +61,5 @@ The dataset used in this project is adapted from [this source](https://edjnet.gi
 ---
 
 ## References
-- [**Tidy Data Paper**](https://vita.had.co.nz/papers/tidy-data.pdf) by Hadley Wickham
+- [**Tidy Data**](https://vita.had.co.nz/papers/tidy-data.pdf) by Hadley Wickham
 - [**Pandas Cheat Sheet**](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
