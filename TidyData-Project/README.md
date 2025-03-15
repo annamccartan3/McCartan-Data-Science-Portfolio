@@ -53,7 +53,7 @@ The dataset used in this project is adapted from [this source](https://edjnet.gi
 - Group and analyze data by **event, gender, and medal type**
 
 **Data Visualization**  
-- Generate interactive charts to explore medal distributions 
+- Generate intuitive charts to explore medal distributions 
 
 ### Example Output  
 **Bar Graph:** This graph shows the number of medals awarded for each event type.
