@@ -28,8 +28,8 @@ import matplotlib.pyplot as plt
 ```
 
 ### Download the Data  
-- Download [**olympics08.csv**](TidyData-Project/data/olympics08.csv) and place it in the `data` folder within your project directory.  
-- Download the [**TidyData.ipynb**](TidyData-Project/TidyData.ipynb) Notebook file.  
+- Download olympics08.csv and place it in the `data` folder within your project directory.  
+- Download the TidyData.ipynb Notebook file.  
 
 ### Run the Notebook  
 - Open the Jupyter Notebook in your preferred environment. Options include:  
