@@ -2,7 +2,7 @@
 *A Data Tidying and Visualization Project*  
 
 ## Project Overview  
-**Gold Standard** is a Jupyter Notebook designed for cleaning and visualizing data from the **2008 Summer Olympics** in Beijing. The project follows [**tidy data principles**](https://vita.had.co.nz/papers/tidy-data.pdf) to structure data effectively, making it easier to analyze and visualize.  
+**Gold Standard** is a Jupyter Notebook designed for cleaning and visualizing data from the **2008 Summer Olympics** in Beijing. The project follows [**tidy data**](https://vita.had.co.nz/papers/tidy-data.pdf) principles to structure data effectively, making it easier to analyze and visualize.  
 
 ### What is Tidy Data?  
 Tidy data principles, as outlined by **Hadley Wickham**, emphasize organizing data so that:  
