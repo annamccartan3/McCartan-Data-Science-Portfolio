@@ -56,7 +56,10 @@ The dataset used in this project is adapted from [this source](https://edjnet.gi
 - Generate interactive charts to explore medal distributions 
 
 ### Example Output  
-*(Add screenshots of visualizations or a cleaned dataset preview for better presentation)*  
+**Bar Graph:** This graph shows the number of medals awarded for each event type.
+![Image](https://github.com/user-attachments/assets/fbff3223-bae7-4cc8-a051-7a1cca853c03)
+**Heatmap:** This heatmap displays the distribution of medals by event and gender.
+![Image](https://github.com/user-attachments/assets/ecf345a5-85c3-4f7d-a28b-153b804365ed)
 
 ---
 
