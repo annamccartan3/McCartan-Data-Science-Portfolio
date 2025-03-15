@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 ---
 
 ## The Olympics Dataset  
-The dataset used in this project is adapted from [this source](https://edjnet.github.io/OlympicsGoNUTS/2008/). It contains **1,875** records of Olympic medalists from the **2008 Summer Olympics**, covering **75 different events** across multiple sports.  
+The dataset used in this project is adapted from [this source](https://edjnet.github.io/OlympicsGoNUTS/2008/), which contains **1,875** records of Olympic medalists from the **2008 Summer Olympics**, covering **75 different events** across multiple sports.  
 
 ---
 
