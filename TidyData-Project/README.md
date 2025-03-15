@@ -19,12 +19,12 @@ By applying these principles, this project transforms messy Olympic data into a 
 ### Install Dependencies  
 Install & import the necessary libraries with the following commands:
 ```bash
-pip install pandas numpy matplotlib  
+pip install pandas seaborn matplotlib
 ```
 ```python
-import pandas as pd  
-import numpy as np  
-import matplotlib.pyplot as plt  
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 ```
 
 ### Download the Data  
