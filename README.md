@@ -28,4 +28,4 @@ Each project includes a link to its repository, where you’ll find code, docume
 I’m always expanding my skills. Stay tuned for more projects in **data visualization, app development, and statistical modeling**!  
 
 ### Connect with me
-Feel free to reach out through my [GitHub](https://github.com/annamccartan3) profile or [LinkedIn](https://www.linkedin.com/in/anna-mccartan/)!  
+Feel free to reach out through my [**GitHub**](https://github.com/annamccartan3) profile or [**LinkedIn**](https://www.linkedin.com/in/anna-mccartan/)!  
