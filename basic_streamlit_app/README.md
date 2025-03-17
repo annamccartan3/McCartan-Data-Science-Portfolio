@@ -11,11 +11,11 @@
 ### Install Dependencies  
 Install & import the necessary libraries with the following commands:
 ```bash
-pip install pandas streamlit
+pip install streamlit pandas
 ```
 ```python
+import streamlit as st
 import pandas as pd
-import streamlit
 ```
 
 ### Download the data
