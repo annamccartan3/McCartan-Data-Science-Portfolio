@@ -29,20 +29,21 @@ Run the app directly from this repository using the following command:
 ---
 
 ## The DogFinder Dataset
-The app uses a cleaned dataset from [Kaggle](https://www.kaggle.com/datasets/yonkotoshiro/dogs-breeds) containing information about almost **400** different dog breeds. Most traits are presented on a scale from 1 to 5. The dataset captures numerous features, including:
-- **Dog Breed Group:** the breed's assigned group based on temperament, skills, and history
-- **Height:** average height in centimeters (cm)
-- **Weight:** average weight in kilograms (kg)
-- **Life Span**
-- **Adaptability**: suitablility for novice owners, apartment living, and hot/cold weather
-- **Friendliness**: affection toward family, kids, strangers, and other dogs
-- **Health and Grooming**: amount of shedding, drool, required grooming
-- **Trainability**: intelligence, barking tendencies, energy level
+DogFinder utilizes a cleaned dataset from [Kaggle](https://www.kaggle.com/datasets/yonkotoshiro/dogs-breeds), which contains information on nearly **400** dog breeds. Most traits are rated on a scale from 1 to 5. The dataset includes details such as:  
+
+- **Breed Group:** Classification based on temperament, skills, and history  
+- **Height:** Average height (cm)  
+- **Weight:** Average weight (kg)  
+- **Life Span:** Typical lifespan range  
+- **Adaptability:** Suitability for novice owners, apartment living, and hot/cold weather  
+- **Friendliness:** Affection toward family, kids, strangers, and other dogs  
+- **Health & Grooming:** Shedding level, drooling tendencies, grooming requirements  
+- **Trainability:** Intelligence, barking tendencies, energy level
   
 ---
 
 ## App Features
-- Use the dropdown and sliders to filter by dog breed group and maximum heights and weights
-- Graph differences in traits such as friendliness and trainability.
+- **Filter by breed group**, height, and weight using dropdowns and sliders  
+- **Visualize breed differences** in traits like friendliness and trainability 
 
 
