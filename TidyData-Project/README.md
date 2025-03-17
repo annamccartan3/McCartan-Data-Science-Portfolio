@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
   - Jupyter Notebook/Jupyter Lab  
   - Google Colab  
   - VSCode (with Jupyter extension)
--Using the terminal, navigate to the project directory containing the Notebook file and `data` folder. 
+- Using the terminal, navigate to the project directory containing the Notebook file and `data` folder. 
 
 ---
 
