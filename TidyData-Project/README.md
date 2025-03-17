@@ -35,7 +35,8 @@ import matplotlib.pyplot as plt
 - Open the Jupyter Notebook in your preferred environment. Options include:  
   - Jupyter Notebook/Jupyter Lab  
   - Google Colab  
-  - VSCode (with Jupyter extension)  
+  - VSCode (with Jupyter extension)
+-Using the terminal, navigate to the project directory containing the Notebook file and `data` folder. 
 
 ---
 
