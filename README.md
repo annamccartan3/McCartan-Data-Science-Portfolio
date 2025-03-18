@@ -22,7 +22,9 @@ Each project includes a link to its repository, where you’ll find code, docume
 ## Machine Learning
 **Applying statistical models in [scikit-learn](https://scikit-learn.org/stable/) to uncover insights and make predictions**  
 - [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)<br>
-  Implementing **linear regression models** to analyze relationships between variables, visualize trends, and make predictions.  
+  Implementing **linear regression models** to analyze relationships between variables, visualize trends, and make predictions.
+- [Logistic Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/logistic_regression)<br>
+  Applying **logistic regression models** to assess relationships, examine data trends, and predict outcomes.
 ---
 ### Next Steps
 I’m always expanding my skills. Stay tuned for more projects in **data visualization, app development, and statistical modeling**!  
