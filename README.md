@@ -24,7 +24,11 @@ Each project includes a link to its repository, where you’ll find code, docume
 - [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)<br>
   Implementing **linear regression models** to analyze relationships between variables, visualize trends, and make predictions.
 - [Logistic Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/logistic_regression)<br>
-  Applying **logistic regression models** to assess relationships, examine data trends, and predict outcomes.
+  Using **logistic regression models** to assess relationships, examine data trends, and predict outcomes.
+- [Decision Trees](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/decision_trees)<br>
+   **decision trees** to _____
+- [K Nearest Neighbors](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/k_nearest_neighbors)<br>
+   **K nearest neighbors (KNN)** to ____
 ---
 ### Next Steps
 I’m always expanding my skills. Stay tuned for more projects in **data visualization, app development, and statistical modeling**!  
