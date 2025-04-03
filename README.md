@@ -19,16 +19,16 @@ Each project includes a link to its repository, where you’ll find code, docume
 - :dog: [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app)<br> 
   A **Streamlit** app that helps users explore **dog breed characteristics**, offering a user-friendly interface for filtering and searching breeds based on key traits. This project deepened my exposure to interactive data presentation, building a foundation with User Experience and accessible app development. <br><br>
 
-## Machine Learning
-**Applying statistical models in [scikit-learn](https://scikit-learn.org/stable/) to uncover insights and make predictions**  
-- [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)<br>
-  Implementing **linear regression models** to analyze relationships between variables, visualize trends, and make predictions.
-- [Logistic Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/logistic_regression)<br>
-  Using **logistic regression models** to assess relationships, examine data trends, and predict outcomes.
-- [Decision Trees](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/decision_trees)<br>
-   **decision trees** to _____
-- [K Nearest Neighbors](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/k_nearest_neighbors)<br>
-   **K nearest neighbors (KNN)** to ____
+## Machine Learning  
+**Leveraging statistical models in [scikit-learn](https://scikit-learn.org/stable/) to extract insights, analyze patterns, and make data-driven predictions.**
+- [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)  
+  Developing **linear regression models** to quantify relationships between variables, visualize trends, and make continuous predictions.  
+- [Logistic Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/logistic_regression)  
+  Applying **logistic regression** for classification tasks, analyzing categorical outcomes, and assessing data trends.  
+- [Decision Trees](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/decision_trees)  
+  Implementing **decision trees** to model complex decision-making processes, improve interpretability, and enhance predictive accuracy.  
+- [K-Nearest Neighbors (KNN)](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/k_nearest_neighbors)  
+  Utilizing **K-Nearest Neighbors (KNN)** for pattern recognition, clustering, and classification based on feature similarity.  
 ---
 ### Next Steps
 I’m always expanding my skills. Stay tuned for more projects in **data visualization, app development, and statistical modeling**!  
