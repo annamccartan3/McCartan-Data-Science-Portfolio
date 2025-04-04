@@ -22,10 +22,14 @@ import pandas as pd
 - Download my_data.csv and place it in the `data` folder within your project directory.
 
 ### Run the App
-Run the app directly from this repository using the following command:
- ```
+Navigate to the basic_streamlit_app repository:
+```
+ cd basic_streamlit_app
+```
+Run the app using the following command:
+```
  streamlit run main.py
- ```
+```
 ---
 
 ## The DogFinder Dataset
