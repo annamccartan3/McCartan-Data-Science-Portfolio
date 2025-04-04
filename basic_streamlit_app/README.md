@@ -1,5 +1,5 @@
 # :dog: Welcome to DogFinder! :poodle:
-*An Interactive Streamlit App*
+*A Streamlit App for Dog Data Analysis*
 
 ## Project Overview  
 **DogFinder** is a [**Streamlit**](https://streamlit.io/) app designed to track information across a range of dog breeds. The project enables interactive visualization of characteristics such as size, behavior, and friendliness.
