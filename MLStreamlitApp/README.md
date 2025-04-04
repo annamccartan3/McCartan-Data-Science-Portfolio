@@ -35,14 +35,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 ```
 ### Run the App
-Navigate to the MLStreamlitApp repository:
-```
- cd MLStreamlitApp
-```
-Run the app using the following command:
-```
- streamlit run main.py
-```
+Access the [**MLStreamlit**](https://mccartan-mlstreamlit-app.streamlit.app/) app on any device!
 
 ## Using the App
 
