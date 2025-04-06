@@ -125,12 +125,12 @@ with tab3:
         st.subheader(f"Performance of {model_name}")
         acc = accuracy_score(y_test, y_pred)
         st.metric("Accuracy", f"{acc:.2f}")
-        pres = precision_score(y_test, y_pred)
-        st.metric("Precision", f"{pres:2f}")
-        rec = recall_score(y_test, y_pred)
-        st.metric("Recall", f"{rec:2f}")
-        fbeta = fbeta_score(y_test, y_pred, beta=1)
-        st.metric("F Score", f"{fbeta:2f}")
+        pres = precision_score(y_test, y_pred, average='macro')
+        st.metric("Precision", f"{pres:.2f}")
+        rec = recall_score(y_test, y_pred, average='macro')
+        st.metric("Recall", f"{rec:.2f}")
+        fbeta = fbeta_score(y_test, y_pred, beta=1, average='macro')
+        st.metric("F Score", f"{fbeta:.2f}")
 
         plot_confusion_matrix(y_test, y_pred, model_name)
 
