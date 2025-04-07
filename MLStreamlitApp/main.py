@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, label_binarize
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report, roc_curve, roc_auc_score, auc
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -19,9 +19,6 @@ demo_data1.dropna(subset=['age'], inplace=True)
 demo_data1 = pd.get_dummies(demo_data1, columns=['sex'], drop_first=True) # Use drop_first = True to avoid "dummy trap"
 demo_data1_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived']
 demo_data1 = demo_data1[demo_data1_kept]
-
-## Demo Data 2: Iris
-demo_data2 = sns.load_dataset('iris')
 
 # Helper Functions
 
@@ -47,33 +44,14 @@ def plot_confusion_matrix(y_true, y_pred, model_name):
     ax.set_title(f"Confusion Matrix: {model_name}")
     st.pyplot(fig)
 
-def plot_roc_curve(model, X_test, y_test):
-    """
-    Plot ROC Curve for binary or multiclass classification.
-    """
+def plot_roc_curve(y_test, y_probs):
+
     plt.figure(figsize=(8, 6))
 
-    # Check if model supports probability prediction
-    if not hasattr(model, "predict_proba"):
-        st.warning("This model does not support probability predictions needed for ROC curve.")
-        return
-
-    y_proba = model.predict_proba(X_test)
-    classes = model.classes_
-
     # Binary classification
-    if len(classes) == 2:
-        fpr, tpr, _ = roc_curve(y_test, y_proba[:, 1])
-        roc_auc = auc(fpr, tpr)
-        sns.lineplot(x=fpr, y=tpr, label=f"AUC = {roc_auc:.2f}")
-
-    # Multiclass classification
-    else:
-        y_test_bin = label_binarize(y_test, classes=classes)
-        for i, class_name in enumerate(classes):
-            fpr, tpr, _ = roc_curve(y_test_bin[:, i], y_proba[:, i])
-            roc_auc = auc(fpr, tpr)
-            sns.lineplot(x=fpr, y=tpr, label=f"Class {class_name} (AUC = {roc_auc:.2f})")
+    fpr, tpr, _ = roc_curve(y_test, y_probs)
+    roc_auc = auc(fpr, tpr)
+    sns.lineplot(x=fpr, y=tpr, label=f"AUC = {roc_auc:.2f}")
 
     # Plot diagonal
     plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
@@ -98,7 +76,7 @@ with tab1:
     st.header("Choose a Dataset")
     dataset_option = st.radio("Select dataset source", ["Demo Dataset", "Upload CSV"])
 
-    # custom dataset upload
+    # Custom dataset upload
     if dataset_option == "Upload CSV":
         uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
         if uploaded_file:
@@ -106,42 +84,26 @@ with tab1:
             st.success("Dataset loaded successfully!")
             st.dataframe(df.head())
 
-            st.subheader("Data Preprocessing")
-
-            st.markdown("### Handle Missing Values")
-            missing_option = st.selectbox("Choose how to handle missing values:", ["Drop rows with missing values", "Fill with mean", "Fill with median"])
-
-            if missing_option == "Drop rows with missing values":
-                df = df.dropna()
-            elif missing_option == "Fill with mean":
-                df = df.fillna(df.mean(numeric_only=True))
-            elif missing_option == "Fill with median":
-                df = df.fillna(df.median(numeric_only=True))
-
-            st.subheader("Processed Data Preview")
-            st.write(df.head())
-
             st.session_state.df = df
     
-    # or, choose a demo dataset
+    # Or, choose a demo dataset
     else:
-        demo_choice = st.selectbox("Choose a demo dataset", ["titanic", "iris"])
+        demo_choice = st.selectbox("Choose a demo dataset", ["titanic"])
         if demo_choice == "titanic":
             df = demo_data1
-        else:
-            df = demo_data2
         st.success(f"{demo_choice.capitalize()} dataset loaded successfully!")
         st.dataframe(df.head())
-   
-    # option to scale data
-    st.markdown("### Feature Scaling")
-    scaling_option = st.selectbox("Choose scaling method:", ["None", "MinMaxScaler", "StandardScaler"])
-    if scaling_option == "MinMaxScaler":
-        scaler = MinMaxScaler()
-        df[df.select_dtypes(include='number').columns] = scaler.fit_transform(df.select_dtypes(include='number'))
-    elif scaling_option == "StandardScaler":
-        scaler = StandardScaler()
-        df[df.select_dtypes(include='number').columns] = scaler.fit_transform(df.select_dtypes(include='number'))
+        st.session_state.df = df
+
+    # Choose target/feature variables
+    if 'df' in st.session_state:
+        df = st.session_state.df
+        with st.expander("Select target variable"):
+            target = st.selectbox("Choose target column", df.columns, index=(len(df.columns)-1))
+        with st.expander("Select feature variables"):
+            features = st.multiselect("Select Feature Columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
+    else:
+        st.warning("Please choose a dataset to continue.")
 
     # Set training parameters
     st.header("Set Training Parameters")
@@ -163,15 +125,6 @@ with tab1:
 with tab2:
     st.header("Choose and Train Your Model")
 
-    # choose a target variable
-    if 'df' in locals():
-        with st.expander("Select target variable"):
-            target = st.selectbox("Choose target column", df.columns, index=(len(df.columns)-1))
-        with st.expander("Select feature variables"):
-            features = st.multiselect("Select Feature Columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
-    else:
-        st.warning("Please choose a dataset to continue.")
-
     if 'df' in locals():
         model_name = st.selectbox("Select model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
         params = {}
@@ -187,6 +140,10 @@ with tab2:
             st.subheader("Set hyperparameters")
             params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5)
 
+        # Option to scale data
+        st.markdown("### Feature Scaling")
+        scaling_option = st.selectbox("Choose scaling method:", ["None", "StandardScaler"])
+
         if st.button("Train Model"):
             X = df[features]
             y = df[target]
@@ -197,11 +154,26 @@ with tab2:
 
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=test_size, random_state=random_state)
+            
+            # Scale data if selected
+            if scaling_option == "StandardScaler":
+                scaler = StandardScaler()
+                numeric_cols = X_train.select_dtypes(include='number').columns
+
+                # Fit only on training data
+                X_train.loc[:, numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
+
+                # Transform test data
+                X_test.loc[:, numeric_cols] = scaler.transform(X_test[numeric_cols])
 
             model = get_model(model_name, params)
             model.fit(X_train, y_train)
             y_pred = model.predict(X_test)
-            y_probs = model.predict_proba(X_test)[:, 1]
+            if len(np.unique(y)) == 2:
+                y_probs = model.predict_proba(X_test)[:, 1]
+            else:
+                st.warning("ROC Curve only supported for binary classification.")
+                y_probs = None
 
             st.success(f"{model_name} trained successfully!")
             st.session_state["results"] = {
@@ -218,9 +190,12 @@ with tab2:
 
             st.subheader("Quick Performance Summary")
 
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Accuracy", f"{accuracy:.2f}")
-            col2.metric("Precision", f"{precision:.2f}")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("Accuracy", f"{accuracy:.2f}")
+            with col2:
+                st.metric("Precision", f"{precision:.2f}")
+            col3, col4 = st.columns(2)
             col3.metric("Recall", f"{recall:.2f}")
             col4.metric("F1 Score", f"{f1:.2f}")
 
@@ -235,7 +210,7 @@ with tab3:
         model_name = st.session_state["results"]["model_name"]
 
         plot_confusion_matrix(y_test, y_pred, model_name)
-        plot_roc_curve(model, X_test, y_test)
+        plot_roc_curve(y_test, y_probs)
 
     else:
         st.info("Train a model first in Tab 2 to view evaluations.")
