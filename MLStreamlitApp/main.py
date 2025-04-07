@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from sklearn.metrics import accuracy_score, precision_score, recall_score, fbeta_score, confusion_matrix, classification_report, roc_curve, roc_auc_score, mean_squared_error, r2_score
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, label_binarize
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report, roc_curve, roc_auc_score, auc
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -47,6 +47,43 @@ def plot_confusion_matrix(y_true, y_pred, model_name):
     ax.set_title(f"Confusion Matrix: {model_name}")
     st.pyplot(fig)
 
+def plot_roc_curve(model, X_test, y_test):
+    """
+    Plot ROC Curve for binary or multiclass classification.
+    """
+    plt.figure(figsize=(8, 6))
+
+    # Check if model supports probability prediction
+    if not hasattr(model, "predict_proba"):
+        st.warning("This model does not support probability predictions needed for ROC curve.")
+        return
+
+    y_proba = model.predict_proba(X_test)
+    classes = model.classes_
+
+    # Binary classification
+    if len(classes) == 2:
+        fpr, tpr, _ = roc_curve(y_test, y_proba[:, 1])
+        roc_auc = auc(fpr, tpr)
+        sns.lineplot(x=fpr, y=tpr, label=f"AUC = {roc_auc:.2f}")
+
+    # Multiclass classification
+    else:
+        y_test_bin = label_binarize(y_test, classes=classes)
+        for i, class_name in enumerate(classes):
+            fpr, tpr, _ = roc_curve(y_test_bin[:, i], y_proba[:, i])
+            roc_auc = auc(fpr, tpr)
+            sns.lineplot(x=fpr, y=tpr, label=f"Class {class_name} (AUC = {roc_auc:.2f})")
+
+    # Plot diagonal
+    plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve")
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+
 # Streamlit Interface
 
 # App title
@@ -54,7 +91,7 @@ st.set_page_config(page_title="DataFlex", layout="wide")
 st.title("DataFlex")
 
 # Tabs
-tab1, tab2, tab3 = st.tabs(["Upload Data & Preprocessing", "Model Selection", "Results & Visualization"])
+tab1, tab2, tab3 = st.tabs(["Upload Data & Preprocessing", "Model Selection", "Visualization"])
 
 # Tab 1: Upload & Preprocess Data
 with tab1:
@@ -143,9 +180,9 @@ with tab2:
             params["max_iter"] = 300
         if model_name == "Decision Tree":
             st.subheader("Set hyperparameters")
-            params["max_depth"] = st.slider("Max Depth", 1, 10, 1)
-            params["min_samples_split"] = st.slider("Min Samples per Split", None, 10, 2)
-            params["min_samples_leaf"] = st.slider("Min Samples per Leaf", None, 5, 1)
+            params["max_depth"] = st.slider("Max Depth", 1, 10, 2)
+            params["min_samples_split"] = st.slider("Min Samples per Split", 1, 10, 2)
+            params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2)
         elif model_name == "K-Nearest Neighbors":
             st.subheader("Set hyperparameters")
             params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5)
@@ -173,10 +210,23 @@ with tab2:
                 "y_pred": y_pred,
                 "y_probs": y_probs
             }
+            # Calculate metrics
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
+            recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
+            f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
 
-# Tab 3: Evaluation & Comparison
+            st.subheader("Quick Performance Summary")
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Accuracy", f"{accuracy:.2f}")
+            col2.metric("Precision", f"{precision:.2f}")
+            col3.metric("Recall", f"{recall:.2f}")
+            col4.metric("F1 Score", f"{f1:.2f}")
+
+# Tab 3: Visualization
 with tab3:
-    st.header("Model Evaluation and Comparison")
+    st.header("Model Visualization")
 
     if "results" in st.session_state:
         y_test = st.session_state["results"]["y_test"]
@@ -184,54 +234,8 @@ with tab3:
         y_probs = st.session_state["results"]["y_probs"]
         model_name = st.session_state["results"]["model_name"]
 
-        st.subheader(f"Performance of {model_name}")
-        acc = accuracy_score(y_test, y_pred)
-        st.metric("Accuracy", f"{acc:.2f}")
-        pres = precision_score(y_test, y_pred, average='macro')
-        st.metric("Precision", f"{pres:.2f}")
-        rec = recall_score(y_test, y_pred, average='macro')
-        st.metric("Recall", f"{rec:.2f}")
-        fbeta = fbeta_score(y_test, y_pred, beta=1, average='macro')
-        st.metric("F Score", f"{fbeta:.2f}")
-        roc_auc = roc_auc_score(y_test, y_probs)
-        st.metric("ROC AUC Score", f"{roc_auc:.2f}")
-
         plot_confusion_matrix(y_test, y_pred, model_name)
-
-        with st.expander("Compare with another model"):
-            model_name_2 = st.selectbox("Select comparison model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"], key="compare_model")
-
-            params_2 = {}
-            st.markdown("### Set comparison model hyperparameters:")
-            if model_name_2 == "Logistic Regression":
-                params_2["C"] = 1.0
-                params_2["max_iter"] = 300
-            elif model_name_2 == "Decision Tree":
-                params_2["max_depth"] = st.slider("Max Depth", 1, 20, 5, key="max_depth_2")
-            elif model_name_2 == "K-Nearest Neighbors":
-                params_2["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5, key="n_neighbors_2")
-
-            if st.button("Train and Compare"):
-                model2 = get_model(model_name_2, params_2)
-                X = df[features]
-                y = df[target]
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-                model2.fit(X_train, y_train)
-                y_pred_2 = model2.predict(X_test)
-                y_probs_2 = model2.predict_proba(X_test)[:, 1]
-
-                acc2 = accuracy_score(y_test, y_pred_2)
-                pres2 = precision_score(y_test, y_pred_2)
-                rec2 = recall_score(y_test, y_pred_2)
-                f2 = recall_score (y_test, y_pred_2)
-                roc_auc2 = roc_auc_score(y_test, y_probs_2)
-                st.metric(f"{model_name_2} Accuracy", f"{acc2:.2f}")
-                st.metric(f"{model_name_2} Precision", f"{pres2:.2f}")
-                st.metric(f"{model_name_2} Recall", f"{rec2:.2f}")
-                st.metric(f"{model_name_2} F-score", f"{f2:.2f}")
-                st.metric("ROC AUC Score", f"{roc_auc2:.2f}")
-                
-                plot_confusion_matrix(y_test, y_pred_2, model_name_2)
+        plot_roc_curve(model, X_test, y_test)
 
     else:
         st.info("Train a model first in Tab 2 to view evaluations.")
