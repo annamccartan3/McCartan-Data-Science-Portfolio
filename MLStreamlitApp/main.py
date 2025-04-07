@@ -10,15 +10,14 @@ from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Demo Data
-## Demo Data 1: Titanic
-demo_data1 = sns.load_dataset('titanic')
+# Demo Data: Titanic
+demo_data = sns.load_dataset('titanic')
 # Handling missing values
-demo_data1.dropna(subset=['age'], inplace=True)
+demo_data.dropna(subset=['age'], inplace=True)
 # Encoding categorical variables
-demo_data1 = pd.get_dummies(demo_data1, columns=['sex'], drop_first=True) # Use drop_first = True to avoid "dummy trap"
-demo_data1_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived']
-demo_data1 = demo_data1[demo_data1_kept]
+demo_data = pd.get_dummies(demo_data, columns=['sex'], drop_first=True) # Use drop_first = True to avoid "dummy trap"
+demo_data_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived']
+demo_data = demo_data[demo_data_kept]
 
 # Helper Functions
 
@@ -41,12 +40,11 @@ def plot_confusion_matrix(y_true, y_pred, model_name):
     sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", ax=ax)
     ax.set_xlabel("Predicted")
     ax.set_ylabel("Actual")
-    ax.set_title(f"Confusion Matrix: {model_name}")
+    ax.set_title(f"Confusion Matrix")
     st.pyplot(fig)
 
 def plot_roc_curve(y_test, y_probs):
-
-    plt.figure(figsize=(8, 6))
+    plt.figure()
 
     # Binary classification
     fpr, tpr, _ = roc_curve(y_test, y_probs)
@@ -90,7 +88,7 @@ with tab1:
     else:
         demo_choice = st.selectbox("Choose a demo dataset", ["titanic"])
         if demo_choice == "titanic":
-            df = demo_data1
+            df = demo_data
         st.success(f"{demo_choice.capitalize()} dataset loaded successfully!")
         st.dataframe(df.head())
         st.session_state.df = df
@@ -209,8 +207,12 @@ with tab3:
         y_probs = st.session_state["results"]["y_probs"]
         model_name = st.session_state["results"]["model_name"]
 
-        plot_confusion_matrix(y_test, y_pred, model_name)
-        plot_roc_curve(y_test, y_probs)
+        # Set up two columns for side-by-side visualization
+        col1, col2 = st.columns(2)
+        with col1:
+            plot_confusion_matrix(y_test, y_pred, model_name)
+        with col2:
+            plot_roc_curve(y_test, y_probs)
 
     else:
         st.info("Train a model first in Tab 2 to view evaluations.")
