@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
@@ -10,17 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Demo Data: Titanic
-demo_data = sns.load_dataset('titanic')
-# Handling missing values
-demo_data.dropna(subset=['age'], inplace=True)
-# Encoding categorical variables
-demo_data = pd.get_dummies(demo_data, columns=['sex'], drop_first=True) # Use drop_first = True to avoid "dummy trap"
-demo_data_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived']
-demo_data = demo_data[demo_data_kept]
-
 # Helper Functions
-
 def load_data(file):
     df = pd.read_csv(file)
     return df
@@ -60,87 +51,108 @@ def plot_roc_curve(y_test, y_probs):
     plt.tight_layout()
     st.pyplot(plt.gcf())
 
+# Demo Data
+demo = sns.load_dataset('titanic') # load dataset
+demo.dropna(subset=['age'], inplace=True) # handle missing values
+demo = pd.get_dummies(demo, columns=['sex'], drop_first=True) # encode categorical variable
+demo_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived'] # select specific columns
+demo = demo[demo_kept]
+
 # Streamlit Interface
 
 # App title
 st.set_page_config(page_title="DataFlex", layout="wide")
 st.title("DataFlex")
 
-# Tabs
-tab1, tab2, tab3 = st.tabs(["Upload Data & Preprocessing", "Model Selection", "Visualization"])
+# Sidebar for controls
+st.sidebar.header("Dataset Options")
 
-# Tab 1: Upload & Preprocess Data
-with tab1:
-    st.header("Choose a Dataset")
-    dataset_option = st.radio("Select dataset source", ["Demo Dataset", "Upload CSV"])
+# Dataset selection
+data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Titanic"])
+# Custom dataset upload
+if data_source == "Upload CSV":
+    uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"])
+    if uploaded_file:
+        df = load_data(uploaded_file)
+        st.success("Dataset loaded successfully!")
 
-    # Custom dataset upload
-    if dataset_option == "Upload CSV":
-        uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
-        if uploaded_file:
-            df = load_data(uploaded_file)
-            st.success("Dataset loaded successfully!")
-            st.dataframe(df.head())
+        # Handling missing values
+        st.sidebar.subheader("Handle Missing Values")
+        missing_option = st.sidebar.radio("Choose method:", ["None", "Drop Rows", "Impute Mean"])
 
-            st.session_state.df = df
-    
-    # Or, choose a demo dataset
-    else:
-        demo_choice = st.selectbox("Choose a demo dataset", ["titanic"])
-        if demo_choice == "titanic":
-            df = demo_data
-        st.success(f"{demo_choice.capitalize()} dataset loaded successfully!")
-        st.dataframe(df.head())
+        if missing_option == "Drop Rows":
+            df = df.dropna()
+        elif missing_option == "Impute Mean":
+            imputer = SimpleImputer(strategy='mean')
+            df_numeric = df.select_dtypes(include=['float64', 'int64'])
+            df[df_numeric.columns] = imputer.fit_transform(df_numeric)
+            for col in df.select_dtypes(include='object').columns:
+                df[col].fillna(df[col].mode()[0], inplace=True)
+
         st.session_state.df = df
 
-    # Choose target/feature variables
+# Or, choose the demo dataset
+else:
+    df = demo
+    st.success("Titanic dataset loaded successfully!")
+    st.session_state.df = df
+
+# Splitting parameters
+if 'df' in locals():
+    st.sidebar.subheader("Training Parameters")
+    test_size = st.sidebar.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
+    random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
+
+    # Store parameters in session_state
+    st.session_state['test_size'] = test_size
+    st.session_state['random_state'] = random_state
+    st.sidebar.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
+
+# Tabs
+tab1, tab2, tab3 = st.tabs(["Refine Data", "Train Model", "Visualization"])
+
+# Tab 1: Data Refinement
+with tab1:
+    st.header("Refine Data")
     if 'df' in st.session_state:
         df = st.session_state.df
+
+        # Choose target/feature variables
+        st.subheader("Choose Variables")
         with st.expander("Select target variable"):
             target = st.selectbox("Choose target column", df.columns, index=(len(df.columns)-1))
         with st.expander("Select feature variables"):
-            features = st.multiselect("Select Feature Columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
+            features = st.multiselect("Select feature columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
+
+        # Option to scale data
+        st.subheader("Scale Data")
+        scaling_option = st.selectbox("Select scaling method:", ["None", "StandardScaler"])
+
+        # Display Dataframe
+        kept_cols = features + [target]
+        df = df[kept_cols]
+        st.dataframe(df.head())
     else:
-        st.warning("Please choose a dataset to continue.")
+        st.info("Please select a dataset first.")
 
-    # Set training parameters
-    st.header("Set Training Parameters")
-
-    if 'df' in locals():
-        test_size = st.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
-        random_state = st.number_input("Random state (seed)", value=42, step=1)
-
-        # Store parameters in session_state
-        st.session_state['test_size'] = test_size
-        st.session_state['random_state'] = random_state
-
-        st.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
-    else:
-        st.warning("Please select a dataset first.")
-
-
-# Tab 2: Model Selection & Training
+# Select model, hyperparameter tuning
 with tab2:
-    st.header("Choose and Train Your Model")
-
-    if 'df' in locals():
+    st.header("Choose & Train Model")
+    if 'df' in st.session_state:
+        df = st.session_state.df
         model_name = st.selectbox("Select model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
         params = {}
         if model_name == "Logistic Regression":
             params["C"] = 1.0
             params["max_iter"] = 300
         if model_name == "Decision Tree":
-            st.subheader("Set hyperparameters")
+            st.subheader("Set Hyperparameters")
             params["max_depth"] = st.slider("Max Depth", 1, 10, 2)
             params["min_samples_split"] = st.slider("Min Samples per Split", 1, 10, 2)
             params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2)
         elif model_name == "K-Nearest Neighbors":
-            st.subheader("Set hyperparameters")
+            st.subheader("Set Hyperparameters")
             params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5)
-
-        # Option to scale data
-        st.markdown("### Feature Scaling")
-        scaling_option = st.selectbox("Choose scaling method:", ["None", "StandardScaler"])
 
         if st.button("Train Model"):
             X = df[features]
@@ -180,6 +192,7 @@ with tab2:
                 "y_pred": y_pred,
                 "y_probs": y_probs
             }
+
             # Calculate metrics
             accuracy = accuracy_score(y_test, y_pred)
             precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
@@ -197,16 +210,19 @@ with tab2:
             col3.metric("Recall", f"{recall:.2f}")
             col4.metric("F1 Score", f"{f1:.2f}")
 
+    else:
+        st.info("To train a model, please select a dataset first.")
+    
 # Tab 3: Visualization
 with tab3:
     st.header("Model Visualization")
-
     if "results" in st.session_state:
         y_test = st.session_state["results"]["y_test"]
         y_pred = st.session_state["results"]["y_pred"]
         y_probs = st.session_state["results"]["y_probs"]
         model_name = st.session_state["results"]["model_name"]
 
+        st.subheader(model_name)
         # Set up two columns for side-by-side visualization
         col1, col2 = st.columns(2)
         with col1:
@@ -215,4 +231,4 @@ with tab3:
             plot_roc_curve(y_test, y_probs)
 
     else:
-        st.info("Train a model first in Tab 2 to view evaluations.")
+        st.info("To view visualization, train a model in Tab 2 first.")
