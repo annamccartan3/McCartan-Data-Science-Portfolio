@@ -23,7 +23,7 @@ Each project includes a link to its repository, where you’ll find code, docume
 **Leveraging statistical models in [scikit-learn](https://scikit-learn.org/stable/) to extract insights, analyze patterns, and make data-driven predictions.**
 ### Projects
 - :robot: [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp)<br> 
-A **Streamlit** app that allows users to explore model selection, tuning, and evaluation. Real-time comparisons highlight the importance of algorithmic transparency, hyperparameter optimization, and diverse evaluation metrics. Building on earlier projects, this app introduces a dynamic interface for hands-on experimentation and model deployment.
+A **Streamlit** app that allows users to explore model selection, tuning, and evaluation. Real-time metrics highlight the importance of algorithmic transparency and hyperparameter optimization. Building on earlier projects, this app introduces a dynamic interface for hands-on experimentation and model deployment.
 
 ### Coursework
 - [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)  
