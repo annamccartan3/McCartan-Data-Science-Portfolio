@@ -35,200 +35,240 @@ def plot_confusion_matrix(y_true, y_pred, model_name):
     st.pyplot(fig)
 
 def plot_roc_curve(y_test, y_probs):
-    plt.figure()
+    if y_probs is not None:
+        plt.figure()
 
-    # Binary classification
-    fpr, tpr, _ = roc_curve(y_test, y_probs)
-    roc_auc = auc(fpr, tpr)
-    sns.lineplot(x=fpr, y=tpr, label=f"AUC = {roc_auc:.2f}")
+        # Plot ROC Curve
+        fpr, tpr, _ = roc_curve(y_test, y_probs)
+        roc_auc = auc(fpr, tpr)
+        sns.lineplot(x=fpr, y=tpr, label=f"AUC = {roc_auc:.2f}")
 
-    # Plot diagonal
-    plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("True Positive Rate")
-    plt.title("ROC Curve")
-    plt.legend(loc="lower right")
-    plt.tight_layout()
-    st.pyplot(plt.gcf())
+        # Plot diagonal
+        plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
+        plt.xlabel("False Positive Rate")
+        plt.ylabel("True Positive Rate")
+        plt.title("ROC Curve")
+        plt.legend(loc="lower right")
+        plt.tight_layout()
+        st.pyplot(plt.gcf())
+    else:
+        st.warning("ROC Curve only supported for binary classification.")
 
-# Demo Data
+# Demo Data: Titanic
 demo = sns.load_dataset('titanic') # load dataset
 demo.dropna(subset=['age'], inplace=True) # handle missing values
 demo = pd.get_dummies(demo, columns=['sex'], drop_first=True) # encode categorical variable
 demo_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived'] # select specific columns
 demo = demo[demo_kept]
 
+# Demo Data: Iris
+demo_2 = sns.load_dataset('iris') # load dataset
+
 # Streamlit Interface
 
-# App title
-st.set_page_config(page_title="DataFlex", layout="wide")
-st.title("DataFlex")
+if 'welcome_screen' not in st.session_state:
+    st.session_state['welcome_screen'] = True
 
-# Sidebar for controls
-st.sidebar.header("Dataset Options")
+if st.session_state['welcome_screen']:
+    st.title("Welcome to DataFlex!")
+    st.write("DataFlex allows you to upload datasets, train machine learning models, and visualize the results.")
+    st.write("Follow these steps to get started:")
+    st.write("1. Upload a dataset or select a demo dataset.")
+    st.write("2. Choose features and the target variable.")
+    st.write("3. Train a model, tune hyperparameters, and evaluate performance.")
+    st.write("4. Visualize model performance (confusion matrix, ROC curve).")
+    st.button("Get Started", on_click=lambda: st.session_state.update({'welcome_screen': False}))
+else:
+    st.set_page_config(page_title="DataFlex", layout="wide")
+    st.title("DataFlex")
 
-# Dataset selection
-data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Titanic"])
-# Custom dataset upload
-if data_source == "Upload CSV":
-    uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"])
-    if uploaded_file:
-        df = load_data(uploaded_file)
-        st.success("Dataset loaded successfully!")
+    # Sidebar for controls
+    st.sidebar.header("Dataset Options")
 
-        # Handling missing values
-        st.sidebar.subheader("Handle Missing Values")
-        missing_option = st.sidebar.radio("Choose method:", ["None", "Drop Rows", "Impute Mean"])
+    # Dataset selection
+    data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Titanic", "Iris"])
 
-        if missing_option == "Drop Rows":
-            df = df.dropna()
-        elif missing_option == "Impute Mean":
-            imputer = SimpleImputer(strategy='mean')
-            df_numeric = df.select_dtypes(include=['float64', 'int64'])
-            df[df_numeric.columns] = imputer.fit_transform(df_numeric)
-            for col in df.select_dtypes(include='object').columns:
-                df[col].fillna(df[col].mode()[0], inplace=True)
+    # Custom dataset upload
+    if data_source == "Upload CSV":
+        uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"], help="Upload your dataset here. Make sure it’s in CSV format. The dataset should contain a target column for model training.")
+        if uploaded_file:
+            df = load_data(uploaded_file)
+            st.success("Dataset loaded successfully!")
 
+            # Handling missing values
+            st.sidebar.subheader("Handle Missing Values")
+            missing_option = st.sidebar.radio("Choose method:", ["None", "Drop Rows", "Impute Mean"])
+
+            if missing_option == "Drop Rows":
+                df = df.dropna()
+            elif missing_option == "Impute Mean":
+                imputer = SimpleImputer(strategy='mean')
+                df_numeric = df.select_dtypes(include=['float64', 'int64'])
+                df[df_numeric.columns] = imputer.fit_transform(df_numeric)
+                for col in df.select_dtypes(include='object').columns:
+                    df[col].fillna(df[col].mode()[0], inplace=True)
+
+            st.session_state.df = df
+
+    # Or, choose a demo dataset
+    else:
+        if data_source == "Titanic":
+            df = demo
+        else:
+            df = demo_2
+        st.success("Iris dataset loaded successfully!")
         st.session_state.df = df
 
-# Or, choose the demo dataset
-else:
-    df = demo
-    st.success("Titanic dataset loaded successfully!")
-    st.session_state.df = df
+    # Splitting parameters
+    if 'df' in locals():
+        st.sidebar.subheader("Training Parameters")
+        test_size = st.sidebar.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
+        random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
 
-# Splitting parameters
-if 'df' in locals():
-    st.sidebar.subheader("Training Parameters")
-    test_size = st.sidebar.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
-    random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
+        # Store parameters in session_state
+        st.session_state['test_size'] = test_size
+        st.session_state['random_state'] = random_state
+        st.sidebar.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
 
-    # Store parameters in session_state
-    st.session_state['test_size'] = test_size
-    st.session_state['random_state'] = random_state
-    st.sidebar.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
+    # Tabs
+    tab1, tab2, tab3 = st.tabs(["Refine Data", "Train Model", "Visualization"])
 
-# Tabs
-tab1, tab2, tab3 = st.tabs(["Refine Data", "Train Model", "Visualization"])
+    # Tab 1: Data Refinement
+    with tab1:
+        st.header("Refine Data")
+        if 'df' in st.session_state:
+            df = st.session_state.df
 
-# Tab 1: Data Refinement
-with tab1:
-    st.header("Refine Data")
-    if 'df' in st.session_state:
-        df = st.session_state.df
+            # Choose target/feature variables
+            st.subheader("Choose Variables")
+            with st.expander("Select target variable"):
+                target = st.selectbox("Choose target column", df.columns, index=(len(df.columns)-1))
+            with st.expander("Select feature variables"):
+                features = st.multiselect("Select feature columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
 
-        # Choose target/feature variables
-        st.subheader("Choose Variables")
-        with st.expander("Select target variable"):
-            target = st.selectbox("Choose target column", df.columns, index=(len(df.columns)-1))
-        with st.expander("Select feature variables"):
-            features = st.multiselect("Select feature columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
+            # Option to scale data
+            st.subheader("Scale Data")
+            scaling_option = st.selectbox("Select scaling method:", ["None", "StandardScaler"])
 
-        # Option to scale data
-        st.subheader("Scale Data")
-        scaling_option = st.selectbox("Select scaling method:", ["None", "StandardScaler"])
+            # Display Dataframe
+            kept_cols = features + [target]
+            df = df[kept_cols]
+            st.dataframe(df.head())
+        else:
+            st.info("Please select a dataset first.")
 
-        # Display Dataframe
-        kept_cols = features + [target]
-        df = df[kept_cols]
-        st.dataframe(df.head())
-    else:
-        st.info("Please select a dataset first.")
+    # Tab 2: Train Model
+    with tab2:
+        st.header("Choose & Train Model")
+        if 'df' in st.session_state:
+            df = st.session_state.df
+            model_name = st.selectbox("Select model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
+            params = {}
+            if model_name == "Logistic Regression":
+                params["C"] = 1.0
+                params["max_iter"] = 300
+            if model_name == "Decision Tree":
+                st.subheader("Set Hyperparameters")
+                params["max_depth"] = st.slider("Max Depth", 1, 10, 2, help="Max Depth: Controls the maximum depth of the tree. Deeper trees tend to overfit")
+                params["min_samples_split"] = st.slider("Min Samples per Split", 1, 10, 2, help="Min Samples Split: The minimum number of samples required to split an internal node. Higher values help limit overfitting.")
+                params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2, help="The minimum number of samples required to be at a leaf node. Higher values help limit overfitting.")
+            elif model_name == "K-Nearest Neighbors":
+                st.subheader("Set Hyperparameters")
+                params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5, help="The number of neighbors to consider when making a prediction. A smaller K can lead to a model that's sensitive to noise, while a larger K can smooth out the decision boundary.")
 
-# Select model, hyperparameter tuning
-with tab2:
-    st.header("Choose & Train Model")
-    if 'df' in st.session_state:
-        df = st.session_state.df
-        model_name = st.selectbox("Select model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
-        params = {}
-        if model_name == "Logistic Regression":
-            params["C"] = 1.0
-            params["max_iter"] = 300
-        if model_name == "Decision Tree":
-            st.subheader("Set Hyperparameters")
-            params["max_depth"] = st.slider("Max Depth", 1, 10, 2)
-            params["min_samples_split"] = st.slider("Min Samples per Split", 1, 10, 2)
-            params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2)
-        elif model_name == "K-Nearest Neighbors":
-            st.subheader("Set Hyperparameters")
-            params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5)
+            if st.button("Train Model"):
+                X = df[features]
+                y = df[target]
 
-        if st.button("Train Model"):
-            X = df[features]
-            y = df[target]
+                # Use parameters from sidebar
+                test_size = st.session_state.get('test_size', 0.2)
+                random_state = st.session_state.get('random_state', 42)
 
-            # Use parameters from Tab 2
-            test_size = st.session_state.get('test_size', 0.2)
-            random_state = st.session_state.get('random_state', 42)
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=test_size, random_state=random_state)
+                
+                # Scale data if selected
+                if scaling_option == "StandardScaler":
+                    scaler = StandardScaler()
+                    numeric_cols = X_train.select_dtypes(include='number').columns
 
-            X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=test_size, random_state=random_state)
-            
-            # Scale data if selected
-            if scaling_option == "StandardScaler":
-                scaler = StandardScaler()
-                numeric_cols = X_train.select_dtypes(include='number').columns
+                    # Fit only on training data
+                    X_train.loc[:, numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
 
-                # Fit only on training data
-                X_train.loc[:, numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
+                    # Transform test data
+                    X_test.loc[:, numeric_cols] = scaler.transform(X_test[numeric_cols])
 
-                # Transform test data
-                X_test.loc[:, numeric_cols] = scaler.transform(X_test[numeric_cols])
+                # Train model
+                model = get_model(model_name, params)
+                model.fit(X_train, y_train)
+                y_pred = model.predict(X_test)
+                if len(np.unique(y)) == 2:
+                    y_probs = model.predict_proba(X_test)[:, 1]
+                else:
+                    y_probs = None
 
-            model = get_model(model_name, params)
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            if len(np.unique(y)) == 2:
-                y_probs = model.predict_proba(X_test)[:, 1]
-            else:
-                st.warning("ROC Curve only supported for binary classification.")
-                y_probs = None
+                st.success(f"{model_name} trained successfully!")
+                st.session_state["results"] = {
+                    "model_name": model_name,
+                    "y_test": y_test,
+                    "y_pred": y_pred,
+                    "y_probs": y_probs
+                }
 
-            st.success(f"{model_name} trained successfully!")
-            st.session_state["results"] = {
-                "model_name": model_name,
-                "y_test": y_test,
-                "y_pred": y_pred,
-                "y_probs": y_probs
-            }
+                # Calculate metrics
+                accuracy = accuracy_score(y_test, y_pred)
+                precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
+                recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
+                f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
 
-            # Calculate metrics
-            accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
-            recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
-            f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+                st.subheader("Quick Performance Summary")
+                with st.expander("What do these metrics mean?"):
+                    st.markdown("""
+                    - **Accuracy**: Proportion of total predictions that were correct.
+                    - **Precision**: Of all predicted positives, how many were actually positive.
+                    - **Recall**: Of all actual positives, how many were correctly predicted.
+                    - **F1 Score**: Measures the balance between Precision & Recall (closer to 1 = better balance)
+                    """)
 
-            st.subheader("Quick Performance Summary")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Accuracy", f"{accuracy:.2f}")
+                with col2:
+                    st.metric("Precision", f"{precision:.2f}")
+                col3, col4 = st.columns(2)
+                with col3:
+                    st.metric("Recall", f"{recall:.2f}")
+                with col4:
+                    st.metric("F1 Score", f"{f1:.2f}")
 
+        else:
+            st.info("To train a model, please select a dataset first.")
+        
+    # Tab 3: Visualization
+    with tab3:
+        st.header("Model Visualization")
+        if "results" in st.session_state:
+            y_test = st.session_state["results"]["y_test"]
+            y_pred = st.session_state["results"]["y_pred"]
+            y_probs = st.session_state["results"]["y_probs"]
+            model_name = st.session_state["results"]["model_name"]
+
+            st.subheader(model_name)
+
+            # Set up two columns for side-by-side visualization
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("Accuracy", f"{accuracy:.2f}")
+                plot_confusion_matrix(y_test, y_pred, model_name)      
+                with st.expander("What does this metric mean?"):
+                    st.markdown("""
+                    - **Confusion Matrix**: The Confusion Matrix shows how many of your model's predictions were correct (True Positives/Negatives, along the diagonal) and how many were incorrect (False Positives/Negatives).
+                    """)
             with col2:
-                st.metric("Precision", f"{precision:.2f}")
-            col3, col4 = st.columns(2)
-            col3.metric("Recall", f"{recall:.2f}")
-            col4.metric("F1 Score", f"{f1:.2f}")
+                plot_roc_curve(y_test, y_probs)
+                with st.expander("What does this metric mean?"):
+                    st.markdown("""
+                    - **ROC Curve**: The ROC Curve shows how well your model can distinguish between positive and negative cases. The higher the Area Under the Curve (AUC), the better your model is at making this distinction.
+                    """)  
 
-    else:
-        st.info("To train a model, please select a dataset first.")
-    
-# Tab 3: Visualization
-with tab3:
-    st.header("Model Visualization")
-    if "results" in st.session_state:
-        y_test = st.session_state["results"]["y_test"]
-        y_pred = st.session_state["results"]["y_pred"]
-        y_probs = st.session_state["results"]["y_probs"]
-        model_name = st.session_state["results"]["model_name"]
-
-        st.subheader(model_name)
-        # Set up two columns for side-by-side visualization
-        col1, col2 = st.columns(2)
-        with col1:
-            plot_confusion_matrix(y_test, y_pred, model_name)
-        with col2:
-            plot_roc_curve(y_test, y_probs)
-
-    else:
-        st.info("To view visualization, train a model in Tab 2 first.")
+        else:
+            st.info("To view visualization, train a model in Tab 2 first.")
