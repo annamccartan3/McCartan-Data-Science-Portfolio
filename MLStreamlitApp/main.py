@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
@@ -116,7 +116,7 @@ else:
             df = demo
         else:
             df = demo_2
-        st.success("Iris dataset loaded successfully!")
+        st.success(f"{data_source} dataset loaded successfully!")
         st.session_state.df = df
 
     # Splitting parameters
@@ -146,14 +146,15 @@ else:
             with st.expander("Select feature variables"):
                 features = st.multiselect("Select feature columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
 
-            # Option to scale data
-            st.subheader("Scale Data")
-            scaling_option = st.selectbox("Select scaling method:", ["None", "StandardScaler"])
-
             # Display Dataframe
             kept_cols = features + [target]
             df = df[kept_cols]
             st.dataframe(df.head())
+
+            # Option to scale data
+            st.subheader("Scale Data")
+            scaling_option = st.selectbox("Select scaling method:", ["None", "StandardScaler"])
+
         else:
             st.info("Please select a dataset first.")
 
@@ -170,11 +171,11 @@ else:
             if model_name == "Decision Tree":
                 st.subheader("Set Hyperparameters")
                 params["max_depth"] = st.slider("Max Depth", 1, 10, 2, help="Max Depth: Controls the maximum depth of the tree. Deeper trees tend to overfit")
-                params["min_samples_split"] = st.slider("Min Samples per Split", 1, 10, 2, help="Min Samples Split: The minimum number of samples required to split an internal node. Higher values help limit overfitting.")
-                params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2, help="The minimum number of samples required to be at a leaf node. Higher values help limit overfitting.")
+                params["min_samples_split"] = st.slider("Min Samples per Split", 1, 10, 2, help="Min Samples per Split: The minimum number of samples required to split an internal node. Higher values help limit overfitting.")
+                params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2, help="Min Samples per Leaf: The minimum number of samples required to be at a leaf node. Higher values help limit overfitting.")
             elif model_name == "K-Nearest Neighbors":
                 st.subheader("Set Hyperparameters")
-                params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5, help="The number of neighbors to consider when making a prediction. A smaller K can lead to a model that's sensitive to noise, while a larger K can smooth out the decision boundary.")
+                params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5, help="Number of Neighbors (k): The number of neighbors to consider when making a prediction. A smaller K can lead to a model that's sensitive to noise, while a larger K can smooth out the decision boundary.")
 
             if st.button("Train Model"):
                 X = df[features]
@@ -221,7 +222,7 @@ else:
                 recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
                 f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
 
-                st.subheader("Quick Performance Summary")
+                st.subheader("Performance Summary")
                 with st.expander("What do these metrics mean?"):
                     st.markdown("""
                     - **Accuracy**: Proportion of total predictions that were correct.
