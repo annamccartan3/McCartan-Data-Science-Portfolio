@@ -6,7 +6,8 @@ from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSe
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
+import graphviz
 from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -133,7 +134,7 @@ else:
     # Tabs
     tab1, tab2, tab3 = st.tabs(["Refine Data", "Train Model", "Visualization"])
 
-    # Tab 1: Data Refinement
+    # Tab 1: Refine Data
     with tab1:
         st.header("Refine Data")
         if 'df' in st.session_state:
@@ -160,7 +161,7 @@ else:
 
     # Tab 2: Train Model
     with tab2:
-        st.header("Choose & Train Model")
+        st.header("Train Model")
         if 'df' in st.session_state:
             df = st.session_state.df
             model_name = st.selectbox("Select model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
@@ -175,7 +176,7 @@ else:
                 params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2, help="Min Samples per Leaf: The minimum number of samples required to be at a leaf node. Higher values help limit overfitting.")
             elif model_name == "K-Nearest Neighbors":
                 st.subheader("Set Hyperparameters")
-                params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 15, 5, help="Number of Neighbors (k): The number of neighbors to consider when making a prediction. A smaller K can lead to a model that's sensitive to noise, while a larger K can smooth out the decision boundary.")
+                params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 21, 5, help="Number of Neighbors (k): The number of neighbors to consider when making a prediction. A smaller K can lead to a model that's sensitive to noise, while a larger K can smooth out the decision boundary.")
 
             if st.button("Train Model"):
                 X = df[features]
@@ -218,9 +219,9 @@ else:
 
                 # Calculate metrics
                 accuracy = accuracy_score(y_test, y_pred)
-                precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
-                recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
-                f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+                precision = precision_score(y_test, y_pred, average="weighted")
+                recall = recall_score(y_test, y_pred, average="weighted")
+                f1 = f1_score(y_test, y_pred, average="weighted")
 
                 st.subheader("Performance Summary")
                 with st.expander("What do these metrics mean?"):
@@ -241,13 +242,77 @@ else:
                     st.metric("Recall", f"{recall:.2f}")
                 with col4:
                     st.metric("F1 Score", f"{f1:.2f}")
+                
+                # If Logistic Regression was chosen, plot Feature Importance
+                if model_name == "Logistic Regression":
+                    st.subheader("Feature Importance")
+
+                    coeff = pd.Series(model.coef_[0], index=X.columns)
+                    coeff = coeff.sort_values()
+
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    sns.barplot(x=coeff.values, y=coeff.index, palette='coolwarm', ax=ax)
+                    ax.set_title('Feature Importance (Coefficients)')
+                    ax.set_ylabel('')
+                    st.pyplot(fig)
+
+                # If KNN was chosen, plot Accuracy vs k
+                if model_name == "K-Nearest Neighbors":
+                    st.subheader("KNN Visualization")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        # Define a range of k values to explore for all odd numbers
+                        k_values = list(range(1, 21, 2))
+                        accuracy_scores = []
+                        # Loop through different values of k, train a KNN model on data, record accuracy
+                        for k in k_values:
+                            knn = KNeighborsClassifier(n_neighbors=k)
+                            knn.fit(X_train, y_train)
+                            y_pred = knn.predict(X_test)
+                            accuracy_scores.append(accuracy_score(y_test, y_pred))
+                        # Plot accuracy vs. number of neighbors (k)
+                        fig, ax = plt.subplots()
+                        ax.plot(k_values, accuracy_scores, marker='o')
+                        ax.set_xlabel('Number of Neighbors: k')
+                        ax.set_ylabel('Accuracy')
+                        ax.set_title('Accuracy')
+                        st.pyplot(fig)
+                    
+                    with col2:
+                        # Define a range of k values to explore for all odd numbers
+                        k_values = list(range(1, 21, 2))
+                        f1_scores = []
+                        # Loop through different values of k, train a KNN model on data, record F1 score
+                        for k in k_values:
+                            knn = KNeighborsClassifier(n_neighbors=k)
+                            knn.fit(X_train, y_train)
+                            y_pred = knn.predict(X_test)
+                            f1_scores.append(f1_score(y_test, y_pred, average="weighted"))
+                        # Plot F1 vs. number of neighbors (k)
+                        fig, ax = plt.subplots()
+                        ax.plot(k_values, f1_scores, marker='o')
+                        ax.set_xlabel('Number of Neighbors: k')
+                        ax.set_ylabel('F1 Score')
+                        ax.set_title('F1 Score')
+                        st.pyplot(fig)
+
+                # If Decision was chosen, plot Decision Tree Visual
+                if model_name == "Decision Tree":
+                        st.subheader("Decision Tree Visualization")
+                        dot_data = export_graphviz(model,
+                                                feature_names=X.columns,
+                                                class_names=[str(cls) for cls in model.classes_],
+                                                filled=True)
+
+                        st.graphviz_chart(dot_data)
+
 
         else:
             st.info("To train a model, please select a dataset first.")
         
     # Tab 3: Visualization
     with tab3:
-        st.header("Model Visualization")
+        st.header("Visualization")
         if "results" in st.session_state:
             y_test = st.session_state["results"]["y_test"]
             y_pred = st.session_state["results"]["y_pred"]
