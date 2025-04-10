@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from sklearn.datasets import load_breast_cancer, load_iris
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -63,7 +64,12 @@ demo_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived'] 
 demo = demo[demo_kept]
 
 # Demo Data: Iris
-demo_2 = sns.load_dataset('iris') # load dataset
+iris = load_iris(as_frame=True) # load dataset
+demo_2 = iris.frame
+
+# Demo Data: Breast Cancer
+breast_cancer = load_breast_cancer(as_frame=True) # load dataset
+demo_3 = breast_cancer.frame
 
 # Streamlit Interface
 
@@ -87,7 +93,7 @@ else:
     st.sidebar.header("Dataset Options")
 
     # Dataset selection
-    data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Titanic", "Iris"])
+    data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Titanic", "Iris", "Breast Cancer"])
 
     # Custom dataset upload
     if data_source == "Upload CSV":
@@ -115,8 +121,10 @@ else:
     else:
         if data_source == "Titanic":
             df = demo
-        else:
+        elif data_source == "Iris":
             df = demo_2
+        elif data_source == "Breast Cancer":
+            df = demo_3
         st.success(f"{data_source} dataset loaded successfully!")
         st.session_state.df = df
 
@@ -262,7 +270,7 @@ else:
                     col1, col2 = st.columns(2)
                     with col1:
                         # Define a range of k values to explore for all odd numbers
-                        k_values = list(range(1, 21, 2))
+                        k_values = list(range(1, 22, 2))
                         accuracy_scores = []
                         # Loop through different values of k, train a KNN model on data, record accuracy
                         for k in k_values:
@@ -276,11 +284,13 @@ else:
                         ax.set_xlabel('Number of Neighbors: k')
                         ax.set_ylabel('Accuracy')
                         ax.set_title('Accuracy')
+                        odd_ticks = [x for x in range(int(1), int(21)+1) if x % 2 == 1]
+                        ax.set_xticks(odd_ticks)
                         st.pyplot(fig)
                     
                     with col2:
                         # Define a range of k values to explore for all odd numbers
-                        k_values = list(range(1, 21, 2))
+                        k_values = list(range(1, 22, 2))
                         f1_scores = []
                         # Loop through different values of k, train a KNN model on data, record F1 score
                         for k in k_values:
@@ -294,6 +304,8 @@ else:
                         ax.set_xlabel('Number of Neighbors: k')
                         ax.set_ylabel('F1 Score')
                         ax.set_title('F1 Score')
+                        odd_ticks = [x for x in range(int(1), int(21)+1) if x % 2 == 1]
+                        ax.set_xticks(odd_ticks)
                         st.pyplot(fig)
 
                 # If Decision was chosen, plot Decision Tree Visual
