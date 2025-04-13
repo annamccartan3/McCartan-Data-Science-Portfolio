@@ -13,7 +13,7 @@
 ---
 
 ## Project Overview  
-**DataFlex** is an interactive [**Streamlit**](https://streamlit.io/) app that applies supervised machine learning (ML) models to any dataset. Use DataFlex to make predictions, tune hyperparameters, and visualize model performance with ease.
+**DataFlex** is an interactive [**Streamlit**](https://streamlit.io/) app that applies supervised machine learning (ML) models to any dataset. Use DataFlex to make predictions, tune hyperparameters, and visualize model performance.
 
 ### What is supervised machine learning?  
 Supervised machine learning, as described by **Luis G. Serrano** in *Grokking Machine Learning*, is the process of training a model using labeled data to make accurate predictions. This typically involves:
@@ -27,7 +27,7 @@ With DataFlex, you can experiment with different models—including Logistic Reg
 ---
 
 ## Getting Started  
-👉 [**Launch DataFlex App**](https://mccartan-mlstreamlit-app.streamlit.app/)
+[**Launch DataFlex App**](https://mccartan-mlstreamlit-app.streamlit.app/)
 
 Once you’re in the app, follow these steps to begin your machine learning workflow:
 1. Upload your dataset or choose a demo dataset.
@@ -45,10 +45,9 @@ Choose from three built-in demo datasets or upload your own `.csv` file:
 - **[Breast Cancer](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)** – Predict tumor malignancy from medical imaging features.
 
 If you upload a custom dataset, DataFlex includes built-in tools for:
-- Handling missing values (drop or impute)
-- Scaling features
+- Handling missing values (drop or impute mean)
 - Customizing train-test splits
-
+  
 ---
 
 ## Model Training  
