@@ -13,7 +13,7 @@
 ---
 
 ## Project Overview  
-**DataFlex** is an interactive [**Streamlit**](https://streamlit.io/) app that applies supervised machine learning (ML) models to any dataset. Use DataFlex to make predictions, tune hyperparameters, and visualize model performance.
+**DataFlex** is an interactive [**Streamlit**](https://streamlit.io/) app that applies supervised machine learning (ML) classification models to any dataset. Use DataFlex to make predictions, tune hyperparameters, and visualize model performance.
 
 ### What is supervised machine learning?  
 Supervised machine learning, as described by **Luis G. Serrano** in *Grokking Machine Learning*, is the process of training a model using labeled data to make accurate predictions. This typically involves:
@@ -22,7 +22,7 @@ Supervised machine learning, as described by **Luis G. Serrano** in *Grokking Ma
 - Using the model to make predictions on unseen test data  
 - Evaluating the model's performance by comparing predictions with actual outcomes  
 
-With DataFlex, you can experiment with different models—including Logistic Regression, Decision Trees, and K-Nearest Neighbors (KNN)—and observe how preprocessing steps and parameter tuning affect the results.
+With DataFlex, you can experiment with different classification models—including Logistic Regression, Decision Trees, and K-Nearest Neighbors (KNN)—and observe how preprocessing steps and parameter tuning affect the results.
 
 ---
 
@@ -53,13 +53,13 @@ If you upload a custom dataset, DataFlex includes built-in tools for:
 ## Model Training  
 Once features and target variables are selected, choose from the following machine learning models:
 - **Logistic Regression** – Great for binary classification problems.
-- **Decision Tree** – Interpretable tree-based model that handles both classification and regression.
-- **K-Nearest Neighbors (KNN)** – Classifies data points based on proximity in feature space.
+- **Decision Tree** – Interpretable tree-based model that breaks classification into a series of binary steps.
+- **K-Nearest Neighbors (KNN)** – Classifies data points based on their similarity to each other.
 
 Additional options include:
-- Scaling data using standardization or min-max normalization  
-- Tuning hyperparameters (e.g., regularization strength, tree depth, or number of neighbors)  
-- Adjusting train-test split ratios and random state for reproducibility  
+- Modifying the chosen target and feature variables
+- Scaling numeric data using StandardScaler
+- Tuning hyperparameters (e.g., tree depth, number of neighbors)  
 
 ---
 
@@ -68,8 +68,7 @@ To assess your model, DataFlex provides key metrics:
 - **Accuracy** – Proportion of correct predictions  
 - **Precision** – Proportion of positive predictions that were actually correct  
 - **Recall** – Proportion of actual positives that were correctly predicted  
-- **F1 Score** – Harmonic mean of precision and recall  
-- **ROC AUC Score** – Measures classification performance across thresholds (for binary tasks)
+- **F1 Score** – Harmonic mean of precision and recall
 
 These metrics are displayed after training to help you compare model effectiveness.
 
@@ -77,11 +76,11 @@ These metrics are displayed after training to help you compare model effectivene
 
 ## Visualization  
 Visual tools help bring your model results to life:
-- 📊 **Confusion Matrix** – Highlights correct and incorrect predictions  
-- 📈 **ROC Curve** – Visualizes true positive rate vs. false positive rate  
-- 🌿 **Decision Tree Graph** – Shows the structure and decisions of a tree-based model  
-- 📌 **Feature Importance Plot** – Identifies which features have the most influence  
-- 🔍 **KNN k-value Analysis** – Plots accuracy and F1-score for various values of *k* to help tune your model  
+- **Feature Importance Plot** – Identifies which features have the most influence in logistic regression
+- **Decision Tree Graph** – Shows the structure and decisions of a tree-based model
+- **KNN k-value Analysis** – Plots accuracy and F1-score for various values of *k* to help tune your model  
+- **Confusion Matrix** – Highlights correct and incorrect predictions  
+- **ROC Curve** – Visualizes true positive rate vs. false positive rate  
 
 ---
 
