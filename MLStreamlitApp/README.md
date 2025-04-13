@@ -29,7 +29,7 @@ With DataFlex, you can experiment with different classification models—includi
 ## Getting Started
 
 ### Deployed App
-Access the live version here: [**Deployed App on Streamlit Cloud**]()
+Access the live version here: [**Deployed App on Streamlit Cloud**](https://mccartan-mlapp.streamlit.app/)
 
 ### Run the App Locally
 
