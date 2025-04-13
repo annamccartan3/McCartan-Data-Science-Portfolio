@@ -47,7 +47,7 @@ pip install -r requirements.txt
 
 #### Run the Streamlit App
 ```bash
- streamlit run main.py
+streamlit run main.py
 ```
 
 Once you’re in the app, follow these steps to begin your machine learning workflow:
