@@ -35,16 +35,15 @@ Access the live version here: [**Deployed App on Streamlit Cloud**](https://mcca
 
 #### Clone the Repository
 ```bash
-git clone https://github.com/your-username/DataFlex.git
-cd DataFlex
+git clone https://github.com/annamccartan3/McCartan-Data-Science-Portfolio.git
+cd McCartan-Data-Science-Portfolio/MLStreamlitApp
 ```
 
 #### Install Dependencies  
-All dependencies can be found in the requirements.txt file. Install the necessary libraries with the following command:
+All dependencies can be found in the requirements.txt file. It is recommended to create and activate a virtual environment before installing the necessary libraries with the following command:
 ```bash
 pip install -r requirements.txt
 ```
-*It is recommended to create and activate a virtual environment before installing these dependencies.*
 
 #### Run the Streamlit App
 ```bash
