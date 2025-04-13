@@ -129,7 +129,8 @@ else:
                     default=None,
                 )   
             st.session_state['drop_cols'] = drop_cols # Store in session_state
-            st.sidebar.success(f"Dropped columns: {', '.join(drop_cols)}")
+            if drop_cols != None:
+                st.sidebar.success(f"Dropped columns: {', '.join(drop_cols)}")
 
             # Detect missing data, select handling option
             st.sidebar.subheader("Handle Missing Data")
