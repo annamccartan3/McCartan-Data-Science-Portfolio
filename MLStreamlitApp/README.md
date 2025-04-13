@@ -38,15 +38,16 @@ Once you’re in the app, follow these steps to begin your machine learning work
 ---
 
 ## Datasets  
-Choose from three built-in demo datasets or upload your own `.csv` file:
-
+*Choose from three built-in demo datasets or upload your own `.csv` file.*<br>
+#### Demo Datasets:
 - **[Titanic](https://en.wikipedia.org/wiki/Passengers_of_the_Titanic)** – Explore survival patterns based on passenger attributes.
 - **[Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set)** – Classify iris flower species using petal and sepal measurements.
 - **[Breast Cancer](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)** – Predict tumor malignancy from medical imaging features.
 
-If you upload a custom dataset, DataFlex includes built-in tools for:
-- Handling missing values (drop or impute mean)
-- Customizing train-test splits
+#### DataFlex includes built-in tools for:
+- **Customizing train-test splits**: Define your training/testing ratio and set a random state for reproducibility.
+- **Dropping incompatible data**: Automatically detect and drop non-numeric/identifier columns that could interfere with model training.
+- **Handling missing values**: If missing data is found, choose to drop affected rows or impute missing values with the mean.
   
 ---
 
