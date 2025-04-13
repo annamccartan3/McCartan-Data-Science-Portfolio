@@ -103,11 +103,20 @@ These metrics are displayed after training to help you compare model effectivene
 ## Visualization  
 Visual tools help bring your model results to life:
 - **Feature Importance Plot** – Identifies which features have the most influence in logistic regression
+<img src="images/FeatureImportance.png" height="300">
+
 - **Decision Tree Graph** – Shows the structure and decisions of a tree-based model
-- **KNN k-value Analysis** – Plots accuracy and F1-score for various values of *k* to help tune your model  
+<img src="images/DecisionTree.png" height="300">
+
+- **KNN k-value Analysis** – Plots accuracy and F1-score for various values of *k* to help tune your model
+<img src="images/KNN.png" height="300">
+
 - **Confusion Matrix** – Displays counts of correct (TP/TN, along diagonal) vs. incorrect (FP/FN) predictions by class
+<img src="images/CM.png" height="300">
+
 - **ROC Curve** – Shows how well your model can distinguish between positive and negative cases
   - **Area Under the Curve (AUC)** - Measures how successful your model is at making this distinction
+<img src="images/ROC.png" height="300">
 
 ---
 
