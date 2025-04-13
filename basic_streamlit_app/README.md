@@ -8,28 +8,27 @@
 
 ## Getting Started
 
-### Install Dependencies  
+### Run the App Locally
+
+#### Clone & Navigate to the Repository
+```bash
+git clone https://github.com/annamccartan3/McCartan-Data-Science-Portfolio.git
+cd McCartan-Data-Science-Portfolio/basic_streamlit_app
+```
+#### Install Dependencies  
 Install & import the necessary libraries with the following commands:
 ```bash
 pip install streamlit pandas
 ```
-```python
-import streamlit as st
-import pandas as pd
-```
 
-### Download the data
-- Download my_data.csv and place it in the `data` folder within your project directory.
+#### Download the data
+Download `my_data.csv` and place it in the `data` folder within your project directory.
 
-### Run the App
-Navigate to the basic_streamlit_app repository:
-```
- cd basic_streamlit_app
-```
-Run the app using the following command:
-```
+#### Run the Streamlit App
+```bash
  streamlit run main.py
 ```
+
 ---
 
 ## The DogFinder Dataset
