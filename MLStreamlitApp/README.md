@@ -27,7 +27,7 @@ With DataFlex, you can experiment with different classification models—includi
 ---
 
 ## Getting Started  
-[**Launch DataFlex App**](https://mccartan-mlstreamlit-app.streamlit.app/)
+### [**Launch DataFlex App**](https://mccartan-mlstreamlit-app.streamlit.app/)
 
 Once you’re in the app, follow these steps to begin your machine learning workflow:
 1. Upload your dataset or choose a demo dataset.
