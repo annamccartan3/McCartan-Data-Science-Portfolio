@@ -13,7 +13,7 @@
 ---
 
 ## Project Overview  
-**DataFlex** is an interactive [**Streamlit**](https://streamlit.io/) app that applies supervised machine learning (ML) classification models to any dataset. Use DataFlex to make predictions, tune hyperparameters, and visualize model performance.
+**DataFlex** is an interactive **Streamlit** app that applies supervised machine learning (ML) classification models to any dataset. Use DataFlex to make predictions, tune hyperparameters, and visualize model performance.
 
 ### What is supervised machine learning?  
 Supervised machine learning, as described by **Luis G. Serrano** in *Grokking Machine Learning*, is the process of training a model using labeled data to make accurate predictions. This typically involves:
