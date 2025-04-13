@@ -29,7 +29,7 @@ With DataFlex, you can experiment with different classification models—includi
 ## Getting Started
 
 ### Deployed App
-Access the live version here: [**Deployed App on Streamlit Cloud**](https://mccartan-mlapp.streamlit.app/)
+Access the live version here: [**Deployed App on Streamlit Cloud**](https://mccartan-ml.streamlit.app/)
 
 ### Run the App Locally
 
@@ -70,9 +70,7 @@ Once you’re in the app, follow these steps to begin your machine learning work
 - **Dropping incompatible data**: Automatically detect and drop non-numeric/identifier columns that could interfere with model training.
 - **Handling missing values**: If missing data is found, choose to drop affected rows or impute missing values with the mean.
 
-![Alt text](images/TrainTestSplit.png)
-![Alt text](images/DropData.png)
-![Alt text](images/MissingValues.png)
+<img src="images/TrainTestSplit.png" width="300"> <img src="images/DropNonNumeric.png" width="300"> <img src="images/MissingData.png" width="300">
 
 ---
 
@@ -85,7 +83,9 @@ Once features and target variables are selected, choose from the following machi
 Additional options include:
 - Modifying the chosen target and feature variables
 - Scaling numeric data using StandardScaler
-- Tuning hyperparameters (e.g., tree depth, number of neighbors)  
+- Tuning hyperparameters (e.g., tree depth, number of neighbors)
+
+<img src="images/HyperparameterTuning.png" width="200"> 
 
 ---
 
