@@ -2,9 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.datasets import load_breast_cancer, load_iris
-from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
@@ -37,7 +36,7 @@ def plot_confusion_matrix(y_true, y_pred, model_name):
     st.pyplot(fig)
 
 def plot_roc_curve(y_test, y_probs):
-    if y_probs is not None:
+    if y_probs is not None and len(np.unique(y_test)) == 2:
         plt.figure()
 
         # Plot ROC Curve
@@ -82,8 +81,8 @@ if st.session_state['welcome_screen']:
     st.write("Follow these steps to get started:")
     st.write("1. Upload a dataset or select a demo dataset.")
     st.write("2. Choose features and the target variable.")
-    st.write("3. Train a model, tune hyperparameters, and evaluate performance.")
-    st.write("4. Visualize model performance (confusion matrix, ROC curve).")
+    st.write("3. Train a model, tune hyperparameters, and view evaluation metrics.")
+    st.write("4. Visualize model performance.")
     st.button("Get Started", on_click=lambda: st.session_state.update({'welcome_screen': False}))
 else:
     st.set_page_config(page_title="DataFlex", layout="wide")
@@ -95,27 +94,60 @@ else:
     # Dataset selection
     data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Titanic", "Iris", "Breast Cancer"])
 
-    # Custom dataset upload
+    # Upload a custom dataset
     if data_source == "Upload CSV":
         uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"], help="Upload your dataset here. Make sure it’s in CSV format. The dataset should contain a target column for model training.")
         if uploaded_file:
             df = load_data(uploaded_file)
             st.success("Dataset loaded successfully!")
-
-            # Handling missing values
-            st.sidebar.subheader("Handle Missing Values")
-            missing_option = st.sidebar.radio("Choose method:", ["None", "Drop Rows", "Impute Mean"])
-
-            if missing_option == "Drop Rows":
-                df = df.dropna()
-            elif missing_option == "Impute Mean":
-                imputer = SimpleImputer(strategy='mean')
-                df_numeric = df.select_dtypes(include=['float64', 'int64'])
-                df[df_numeric.columns] = imputer.fit_transform(df_numeric)
-                for col in df.select_dtypes(include='object').columns:
-                    df[col].fillna(df[col].mode()[0], inplace=True)
-
             st.session_state.df = df
+
+            # Splitting parameters
+            st.sidebar.subheader("Training Parameters")
+            test_size = st.sidebar.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
+            random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
+            # Store parameters in session_state
+            st.session_state['test_size'] = test_size
+            st.session_state['random_state'] = random_state
+            st.sidebar.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
+
+            # Detect non-numeric columns, select columns to drop
+            st.sidebar.subheader("Drop Incompatible Data")
+            potential_drop_cols = df.select_dtypes(exclude=["number", "bool"]).columns.tolist()
+            if potential_drop_cols:
+                drop_cols = st.sidebar.multiselect(
+                    "Some columns may be incompatible with classification (e.g., strings, IDs). "
+                    "Select any you'd like to drop:",
+                    df.columns,
+                    default=list(potential_drop_cols),
+                )
+            else:
+                st.sidebar.success("All columns appear to be compatible with classification.")
+                drop_cols = st.sidebar.multiselect(
+                    "Select any you'd like to drop:",
+                    df.columns,
+                    default=None,
+                )   
+            st.session_state['drop_cols'] = drop_cols # Store in session_state
+            st.sidebar.success(f"Dropped columns: {', '.join(drop_cols)}")
+
+            # Detect missing data, select handling option
+            st.sidebar.subheader("Handle Missing Data")
+            current_df = df.copy()
+            current_df.drop(columns=drop_cols, inplace=True)
+            if current_df.isnull().values.any():
+                missing_option = st.sidebar.radio(
+                    "Missing values detected in dataset. "
+                    "How would you like to handle them?",
+                    ("Drop rows", "Impute mean"),
+                    key="missing_value_option"
+                )
+            else:
+                missing_option=None
+                st.sidebar.success("No missing values detected.") # Store in session_state
+            st.session_state['missing_option'] = missing_option
+        else:
+            st.sidebar.info("Please select a dataset first.")
 
     # Or, choose a demo dataset
     else:
@@ -126,18 +158,18 @@ else:
         elif data_source == "Breast Cancer":
             df = demo_3
         st.success(f"{data_source} dataset loaded successfully!")
-        st.session_state.df = df
+        drop_cols=None
+        missing_option=None
 
-    # Splitting parameters
-    if 'df' in locals():
+        # Splitting parameters
         st.sidebar.subheader("Training Parameters")
         test_size = st.sidebar.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
         random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
-
-        # Store parameters in session_state
-        st.session_state['test_size'] = test_size
-        st.session_state['random_state'] = random_state
+        st.session_state['test_size'] = test_size   # Store parameters in session_state
+        st.session_state['random_state'] = random_state     # Store parameters in session_state
         st.sidebar.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
+        
+        st.session_state.df = df
 
     # Tabs
     tab1, tab2, tab3 = st.tabs(["Refine Data", "Train Model", "Visualization"])
@@ -148,12 +180,28 @@ else:
         if 'df' in st.session_state:
             df = st.session_state.df
 
+            # Drop non-numeric columns
+            if drop_cols != None:
+                df.drop(columns=drop_cols, inplace=True)
+
+            # Handle missing values
+            if missing_option != None:
+                    if missing_option == "Drop rows":
+                        df.dropna(inplace=True)
+                        st.sidebar.success("Rows with missing values have been dropped.")
+                    elif missing_option == "Impute mean":
+                        numeric_cols = df.select_dtypes(include=["float", "int"]).columns
+                        df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+                        st.sidebar.success("Missing numeric values have been imputed with the column mean.")
+
             # Choose target/feature variables
             st.subheader("Choose Variables")
             with st.expander("Select target variable"):
                 target = st.selectbox("Choose target column", df.columns, index=(len(df.columns)-1))
             with st.expander("Select feature variables"):
                 features = st.multiselect("Select feature columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
+            st.session_state['features'] = features
+            st.session_state['target'] = target
 
             # Display Dataframe
             kept_cols = features + [target]
@@ -163,6 +211,10 @@ else:
             # Option to scale data
             st.subheader("Scale Data")
             scaling_option = st.selectbox("Select scaling method:", ["None", "StandardScaler"])
+            if scaling_option=="StandardScaler":
+                numeric_cols = df[features].select_dtypes(include='number').columns
+                st.success(f"Scaled columns: {', '.join(numeric_cols)}")
+            st.session_state['scaling_option'] = scaling_option
 
         else:
             st.info("Please select a dataset first.")
@@ -172,6 +224,9 @@ else:
         st.header("Train Model")
         if 'df' in st.session_state:
             df = st.session_state.df
+            features = st.session_state.get('features', [])
+            target = st.session_state.get('target', None)
+            scaling_option = st.session_state.get('scaling_option', 'None')
             model_name = st.selectbox("Select model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
             params = {}
             if model_name == "Logistic Regression":
@@ -202,18 +257,23 @@ else:
                     scaler = StandardScaler()
                     numeric_cols = X_train.select_dtypes(include='number').columns
 
-                    # Fit only on training data
-                    X_train.loc[:, numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
+                    X_train_scaled = X_train.copy()
+                    X_test_scaled = X_test.copy()
+                    X_train_scaled[numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
+                    X_test_scaled[numeric_cols] = scaler.transform(X_test[numeric_cols])
 
-                    # Transform test data
-                    X_test.loc[:, numeric_cols] = scaler.transform(X_test[numeric_cols])
+                    X_train = X_train_scaled
+                    X_test = X_test_scaled
 
                 # Train model
                 model = get_model(model_name, params)
                 model.fit(X_train, y_train)
                 y_pred = model.predict(X_test)
                 if len(np.unique(y)) == 2:
-                    y_probs = model.predict_proba(X_test)[:, 1]
+                    try:
+                        y_probs = model.predict_proba(X_test)[:, 1]
+                    except (AttributeError, IndexError):
+                        y_probs = None
                 else:
                     y_probs = None
 
@@ -255,15 +315,20 @@ else:
                 if model_name == "Logistic Regression":
                     st.subheader("Feature Importance")
 
-                    coeff = pd.Series(model.coef_[0], index=X.columns)
-                    coeff = coeff.sort_values()
+                    if len(model.classes_) == 2:
+                        coeff = pd.Series(model.coef_[0], index=X.columns)
+                        coeff = coeff.sort_values()
 
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    sns.barplot(x=coeff.values, y=coeff.index, palette='coolwarm', ax=ax)
-                    ax.set_title('Feature Importance (Coefficients)')
-                    ax.set_ylabel('')
-                    st.pyplot(fig)
-
+                        fig, ax = plt.subplots(figsize=(10, 6))
+                        sns.barplot(x=coeff.values, y=coeff.index, palette='coolwarm', ax=ax)
+                        ax.set_title('Feature Importance (Coefficients)')
+                        ax.set_ylabel('')
+                        st.pyplot(fig)
+                    else:
+                        coeff = pd.DataFrame(model.coef_.T, index=X.columns, columns=model.classes_)
+                        styled_coeff = coeff.style.background_gradient(cmap='coolwarm').format("{:.3f}")
+                        st.dataframe(styled_coeff)
+                
                 # If KNN was chosen, plot Accuracy vs k
                 if model_name == "K-Nearest Neighbors":
                     st.subheader("KNN Visualization")
@@ -308,7 +373,8 @@ else:
                         ax.set_xticks(odd_ticks)
                         st.pyplot(fig)
 
-                # If Decision was chosen, plot Decision Tree Visual
+
+                # If Decision Tree was chosen, plot Decision Tree Visual
                 if model_name == "Decision Tree":
                         st.subheader("Decision Tree Visualization")
                         dot_data = export_graphviz(model,
