@@ -35,7 +35,7 @@ Access the live version here: [**Deployed App on Streamlit Cloud**](https://mcca
 
 #### Clone the Repository
 ```bash
-git clone https://github.com/your-username/DataFlex.git
+git clone https://github.com/annamccartan3/McCartan-Data-Science-Portfolio.git
 cd DataFlex
 ```
 
