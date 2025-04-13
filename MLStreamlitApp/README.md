@@ -69,7 +69,11 @@ Once you’re in the app, follow these steps to begin your machine learning work
 - **Customizing train-test splits**: Define your training/testing ratio and set a random state for reproducibility.
 - **Dropping incompatible data**: Automatically detect and drop non-numeric/identifier columns that could interfere with model training.
 - **Handling missing values**: If missing data is found, choose to drop affected rows or impute missing values with the mean.
-  
+
+![Alt text](images/TrainTestSplit.png)
+![Alt text](images/DropData.png)
+![Alt text](images/MissingValues.png)
+
 ---
 
 ## Model Training  
