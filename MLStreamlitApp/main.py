@@ -113,6 +113,7 @@ else:
 
             # Detect non-numeric columns, select columns to drop
             st.sidebar.subheader("Drop Incompatible Data")
+            drop_cols = None
             potential_drop_cols = df.select_dtypes(exclude=["number", "bool"]).columns.tolist()
             if potential_drop_cols:
                 drop_cols = st.sidebar.multiselect(
@@ -127,10 +128,10 @@ else:
                     "Select any you'd like to drop:",
                     df.columns,
                     default=None,
-                )   
-            st.session_state['drop_cols'] = drop_cols # Store in session_state
-            if drop_cols != None:
+                )
+            if drop_cols is not None and len(drop_cols) > 0:
                 st.sidebar.success(f"Dropped columns: {', '.join(drop_cols)}")
+            st.session_state['drop_cols'] = drop_cols # Store in session_state
 
             # Detect missing data, select handling option
             st.sidebar.subheader("Handle Missing Data")
@@ -180,6 +181,8 @@ else:
         st.header("Refine Data")
         if 'df' in st.session_state:
             df = st.session_state.df
+            drop_cols = st.session_state.get('drop_cols')
+            missing_option = st.session_state.get('missing_option')
 
             # Drop non-numeric columns
             if drop_cols != None:
