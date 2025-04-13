@@ -33,7 +33,7 @@ Access the live version here: [**Deployed App on Streamlit Cloud**](https://mcca
 
 ### Run the App Locally
 
-#### Clone the Repository
+#### Clone & Navigate to the Repository
 ```bash
 git clone https://github.com/annamccartan3/McCartan-Data-Science-Portfolio.git
 cd McCartan-Data-Science-Portfolio/MLStreamlitApp
