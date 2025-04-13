@@ -26,8 +26,41 @@ With DataFlex, you can experiment with different classification models—includi
 
 ---
 
-## Getting Started  
-### [**Launch DataFlex App**](https://mccartan-mlstreamlit-app.streamlit.app/)
+## Getting Started 
+### Deployed App
+Try the live version here: [**Deployed App on Streamlit Cloud**](https://mccartan-mlstreamlit-app.streamlit.app/)
+
+### Run the App Locally
+
+#### Install Dependencies  
+Install & import the necessary libraries with the following commands:
+```bash
+pip install streamlit pandas
+```
+```python
+import streamlit as st
+import pandas as pd
+```
+
+### Download the data
+- Download my_data.csv and place it in the `data` folder within your project directory.
+
+### Run the App
+Navigate to the basic_streamlit_app repository:
+```
+ cd basic_streamlit_app
+```
+Run the app using the following command:
+```
+ streamlit run main.py
+```
+---
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/DataFlex.git
+   cd DataFlex
+
 
 Once you’re in the app, follow these steps to begin your machine learning workflow:
 1. Upload your dataset or choose a demo dataset.
