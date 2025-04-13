@@ -28,25 +28,25 @@ With DataFlex, you can experiment with different classification models—includi
 
 ## Getting Started
 
-## Deployed App
-Try the live version here: [**Deployed App on Streamlit Cloud**](https://mccartan-mlstreamlit-app.streamlit.app/)
+### Deployed App
+Access the live version here: [**Deployed App on Streamlit Cloud**]()
 
-## Run the App Locally
+### Run the App Locally
 
-### Clone the Repository
+#### Clone the Repository
 ```bash
 git clone https://github.com/your-username/DataFlex.git
 cd DataFlex
 ```
 
-### Install Dependencies  
+#### Install Dependencies  
 All dependencies can be found in the requirements.txt file. Install the necessary libraries with the following command:
 ```bash
 pip install -r requirements.txt
 ```
 *It is recommended to create and activate a virtual environment before installing these dependencies.*
 
-### Run the Streamlit App
+#### Run the Streamlit App
 ```bash
  streamlit run main.py
 ```
