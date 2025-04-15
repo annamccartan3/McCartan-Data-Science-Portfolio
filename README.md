@@ -26,6 +26,7 @@ Each project includes a link to its repository, where you’ll find code, docume
 A **Streamlit** app that allows users to explore model selection, tuning, and evaluation. Real-time metrics highlight the importance of algorithmic transparency and hyperparameter optimization. Building on earlier projects, this app introduces a dynamic interface for hands-on experimentation and model deployment.
 
 ### Coursework
+#### Supervised Machine Learning
 - [Linear Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/linear_regression)  
   Developing **linear regression models** to quantify relationships between variables, visualize trends, and make continuous predictions.  
 - [Logistic Regression](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/logistic_regression)  
@@ -34,6 +35,13 @@ A **Streamlit** app that allows users to explore model selection, tuning, and ev
   Implementing **decision trees** to model complex decision-making processes, improve interpretability, and enhance predictive accuracy.  
 - [K-Nearest Neighbors (KNN)](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/k_nearest_neighbors)  
   Utilizing **K-Nearest Neighbors (KNN)** for pattern recognition, clustering, and classification based on feature similarity.
+
+#### Unsupervised Machine Learning
+- [Principal Component Analysis](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/principal_component_analysis)  
+  Employing **Principal Component Analysis (PCA)** for dimensionality reduction, enhancing interpretability while preserving essential data patterns.
+- [K-Means Clustering](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/k_means_clustering)  
+  Working with **K-Means clustering** to identify natural groupings within datasets based on feature similarity.
+
 ---
 ### Next Steps
 I’m always expanding my skills. Stay tuned for more projects in **data visualization and statistical modeling**!  
