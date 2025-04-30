@@ -1,15 +1,19 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+
 from sklearn.datasets import load_breast_cancer, load_iris
+from sklearn.preprocessing import StandardScaler
+
 from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 import graphviz
 from sklearn.neighbors import KNeighborsClassifier
-import matplotlib.pyplot as plt
+
 import seaborn as sns
 
 # Helper Functions
@@ -66,9 +70,12 @@ demo = demo[demo_kept]
 iris = load_iris(as_frame=True) # load dataset
 demo_2 = iris.frame
 
-# Demo Data: Breast Cancer
-breast_cancer = load_breast_cancer(as_frame=True) # load dataset
-demo_3 = breast_cancer.frame
+# Demo Data: Breast Cancer Wisconsin dataset
+breast_cancer = load_breast_cancer()
+breast_cancer_X = breast_cancer.data  # Feature matrix
+breast_cancer_y = breast_cancer.target  # Target variable (diagnosis)
+breast_cancer_feature_names = breast_cancer.feature_names
+breast_cancer_target_names = breast_cancer.target_names
 
 # Streamlit Interface
 
@@ -76,8 +83,8 @@ if 'welcome_screen' not in st.session_state:
     st.session_state['welcome_screen'] = True
 
 if st.session_state['welcome_screen']:
-    st.title("Welcome to DataFlex!")
-    st.write("DataFlex allows you to upload datasets, train machine learning models, and visualize the results.")
+    st.title("Welcome to DataQuest!")
+    st.write("DataQuest allows you to upload datasets, group data with unsupervised machine learning models, and visualize the results.")
     st.write("Follow these steps to get started:")
     st.write("1. Upload a dataset or select a demo dataset.")
     st.write("2. Choose features and the target variable.")
@@ -85,8 +92,8 @@ if st.session_state['welcome_screen']:
     st.write("4. Visualize model performance.")
     st.button("Get Started", on_click=lambda: st.session_state.update({'welcome_screen': False}))
 else:
-    st.set_page_config(page_title="DataFlex", layout="wide")
-    st.title("DataFlex")
+    st.set_page_config(page_title="DataQuest", layout="wide")
+    st.title("DataQuest")
 
     # Sidebar for controls
     st.sidebar.header("Dataset Options")
@@ -231,9 +238,9 @@ else:
             features = st.session_state.get('features', [])
             target = st.session_state.get('target', None)
             scaling_option = st.session_state.get('scaling_option', 'None')
-            model_name = st.selectbox("Select model", ["Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
+            model_name = st.selectbox("Select model", ["Principal Component Analysis", "K-Means Clustering", "Hierarchical Clustering"])
             params = {}
-            if model_name == "Logistic Regression":
+            if model_name == "Principal Component Analysis":
                 params["C"] = 1.0
                 params["max_iter"] = 300
             if model_name == "Decision Tree":
@@ -260,6 +267,10 @@ else:
                 if scaling_option == "StandardScaler":
                     scaler = StandardScaler()
                     numeric_cols = X_train.select_dtypes(include='number').columns
+
+                    # It is important to center and scale the features since PCA is sensitive to the variable scales.
+scaler = StandardScaler()
+X_std = scaler.fit_transform(X)
 
                     X_train_scaled = X_train.copy()
                     X_test_scaled = X_test.copy()
