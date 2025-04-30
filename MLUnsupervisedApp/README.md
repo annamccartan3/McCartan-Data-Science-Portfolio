@@ -1,5 +1,5 @@
 # 💡 DataQuest  
-*An Interactive Machine Learning App*
+*An Unsupervised Machine Learning Explorer*
 
 ## Table of Contents
 - [Project Overview](#project-overview)
@@ -13,30 +13,28 @@
 ---
 
 ## Project Overview  
-**DataFlex** is an interactive **Streamlit** app that applies supervised machine learning (ML) classification models to any dataset. Use DataFlex to make predictions, tune hyperparameters, and visualize model performance.
+**DataQuest** is an interactive **Streamlit** app that allows users to explore unsupervised machine learning techniques like clustering and dimensionality reduction.
 
 ### What is supervised machine learning?  
-Supervised machine learning, as described by **Luis G. Serrano** in *Grokking Machine Learning*, is the process of training a model using labeled data to make accurate predictions. This typically involves:
-- Splitting the data into training and testing sets  
-- Instantiating and training a model on the training data  
-- Using the model to make predictions on unseen test data  
-- Evaluating the model's performance by comparing predictions with actual outcomes  
+Unsupervised learning refers to techniques that discover patterns in data without using labeled outcomes. As described in *Grokking Machine Learning* by **Luis G. Serrano**, these methods help reveal structure, groupings, and key relationships in datasets. Examples include:
+- Clustering – Grouping data points based on similarity (e.g., K-Means, Agglomerative)
+- Dimensionality Reduction – Simplifying high-dimensional data while preserving key variance (e.g., PCA)
 
-With DataFlex, you can experiment with different classification models—including Logistic Regression, Decision Trees, and K-Nearest Neighbors (KNN)—and observe how preprocessing steps and parameter tuning affect the results.
+Whether you're analyzing hidden structures in your data or exploring high-dimensional datasets, DataQuest offers hands-on tools to apply methods like K-Means, Hierarchical Clustering, and Principal Component Analysis (PCA).
 
 ---
 
 ## Getting Started
 
 ### Deployed App
-Access the live version here: [**Deployed App on Streamlit Cloud**](https://dataflex.streamlit.app/)
+Access the live version here: [**Deployed App on Streamlit Cloud**](https://dataquest.streamlit.app/)
 
 ### Run the App Locally
 
 #### Clone & Navigate to the Repository
 ```bash
 git clone https://github.com/annamccartan3/McCartan-Data-Science-Portfolio.git
-cd McCartan-Data-Science-Portfolio/MLStreamlitApp
+cd McCartan-Data-Science-Portfolio/MLUnsupervisedApp
 ```
 
 #### Install Dependencies  
