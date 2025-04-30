@@ -1,4 +1,4 @@
-# 🤖 DataFlex  
+# 💡 DataQuest  
 *An Interactive Machine Learning App*
 
 ## Table of Contents
