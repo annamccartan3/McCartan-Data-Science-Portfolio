@@ -23,7 +23,9 @@ Each project includes a link to its repository, where you’ll find code, docume
 **Leveraging statistical models in [scikit-learn](https://scikit-learn.org/stable/) to extract insights, analyze patterns, and make data-driven predictions.**
 ### Projects
 - :robot: [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp)<br> 
-A **Streamlit** app that allows users to explore model selection, tuning, and evaluation. Real-time metrics highlight the importance of algorithmic transparency and hyperparameter optimization. Building on earlier projects, this app introduces a dynamic interface for hands-on experimentation and model deployment.
+A Streamlit app for exploring supervised machine learning through model selection, tuning, and evaluation. Users can upload datasets, preprocess features, and train models such as logistic regression, decision trees, and k-nearest neighbors, with real-time performance metrics and visualizations to guide interpretation. This project builds on prior work in classification pipelines and model evaluation, extending it into an interactive, user-centered tool that emphasizes algorithmic transparency, hands-on experimentation, and deployment-ready workflows.
+- :bulb: [**DataQuest**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLUnsupervisedApp)<br> 
+A Streamlit app for unsupervised machine learning that enables users to uncover hidden structures in data through clustering (K-Means, hierarchical) and dimensionality reduction (PCA). Interactive controls and dynamic plots support real-time exploration of grouping behavior, variance, and pattern discovery. As a complement to DataFlex, this project expands the portfolio into exploratory, label-free learning, highlighting the importance of structural insight and feature relationships in complex datasets.
 
 ### Coursework
 #### Supervised Machine Learning
