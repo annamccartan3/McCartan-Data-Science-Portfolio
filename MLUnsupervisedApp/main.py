@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import accuracy_score, silhouette_score
 from scipy.cluster.hierarchy import linkage, dendrogram
 
 # add 1 more demo??
@@ -270,7 +270,7 @@ else:
                         ax2.plot(range(1, len(cumulative_variance)+1), cumulative_variance, marker='o', linestyle='--', color='green')
                         ax2.set_xlabel('Number of Components')
                         ax2.set_ylabel('Cumulative Explained Variance')
-                        ax2.set_title('Cumulative Variance Explained')
+                        ax2.set_title('Cumulative Explained Variance')
                         ax2.set_xticks(range(1, len(cumulative_variance)+1))
                         ax2.grid(True)
                         st.pyplot(fig2)
@@ -312,7 +312,7 @@ else:
                             ax1.plot(ks, wcss, marker='o')
                             ax1.set_xlabel('Number of clusters (k)')
                             ax1.set_ylabel('Within-Cluster Sum of Squares (WCSS)')
-                            ax1.set_title('Elbow Method for Optimal k')
+                            ax1.set_title('Elbow Method')
                             ax1.grid(True)
                             st.pyplot(fig1)
                             # Explain the purpose of this plot
@@ -324,7 +324,7 @@ else:
                             ax2.plot(ks, silhouette_scores, marker='o', color='green')
                             ax2.set_xlabel('Number of clusters (k)')
                             ax2.set_ylabel('Silhouette Score')
-                            ax2.set_title('Silhouette Score for Optimal k')
+                            ax2.set_title('Silhouette Analysis')
                             ax2.grid(True)
                             st.pyplot(fig2)
                             # Explain the purpose of this plot
@@ -337,6 +337,36 @@ else:
                 
                 # If Hierarchical was chosen, output the dendogram w/ truncation options
                 elif model_name == "Hierarchical Clustering":
+
+                    ks = list(range(2, 11))
+                    silhouette_scores = []
+
+                    for k in ks:
+                        agg = AgglomerativeClustering(n_clusters=k, linkage="ward")
+                        labels = agg.fit_predict(X_scaled)
+                        silhouette_scores.append(silhouette_score(X_scaled, labels))
+
+                    # Store results
+                    st.session_state["ks"] = ks
+                    st.session_state["silhouette_scores"] = silhouette_scores
+
+                    st.subheader("Hierarchical Clustering Optimization")
+
+                    # Check that metrics are available
+                    if "silhouette_scores" in st.session_state and "ks" in st.session_state:
+                        ks = st.session_state["ks"]
+                        silhouette_scores = st.session_state["silhouette_scores"]
+
+                        # Silhouette Plot
+                        fig2, ax2 = plt.subplots(figsize=(10,4))
+                        ax2.plot(ks, silhouette_scores, marker='o', color='green')
+                        ax2.set_xlabel('Number of clusters (k)')
+                        ax2.set_ylabel('Silhouette Score')
+                        ax2.set_title("Silhouette Analysis")
+                        ax2.grid(True)
+                        st.pyplot(fig2)
+                        # Explain the purpose of this plot
+                        st.info("💡 The sillhouette score quantifies how similar an object is to its own cluster compared to other clusters. A higher silhouette score indicates better clustering.")
 
                     # Slider for the number of clusters to display if truncation is enabled
                     st.session_state['p_value'] = st.slider("Number of clusters to display in dendrogram (p)",
@@ -362,7 +392,7 @@ else:
                         truncate_mode=truncate_mode, 
                         p = st.session_state['p_value']
                     )
-                    ax1.set_title("Hierarchical Clustering Dendrogram", fontsize=16)
+                    ax1.set_title("Dendrogram", fontsize=16)
                     ax1.set_xlabel(target_col.capitalize(), fontsize=14)
                     ax1.set_ylabel("Distance", fontsize=14)
 
@@ -380,7 +410,9 @@ else:
 
                     model = get_model(model_name, params)
                     st.session_state["model"] = model
+                    y = st.session_state['y']
                     random_state = st.session_state.get('random_state', 42)
+                    st.success(f"{model_name} trained successfully!")   
                     
                     # If PCA was chosen, display cumulative explained variance
                     if model_name == "Principal Component Analysis":
@@ -391,15 +423,15 @@ else:
                     if model_name == "K-Means Clustering":
                         clusters = model.fit_predict(X_scaled)
                         st.session_state['clusters'] = clusters 
+                        kmeans_accuracy = accuracy_score(y, clusters)
+                        st.metric("Accuracy", f"{kmeans_accuracy*100:.2f}%")
                     
                     # If Hierarchical was chosen
                     if model_name == "Hierarchical Clustering":
                         df["Cluster"] = model.fit_predict(X_scaled)
                         st.session_state['df']['Cluster'] = df["Cluster"]
                         cluster_labels = df["Cluster"].tolist()
-                        st.session_state['cluster_labels'] = cluster_labels
-                    
-                    st.success(f"{model_name} trained successfully!")              
+                        st.session_state['cluster_labels'] = cluster_labels            
 
             else:
                 st.info("To train a model, please select a dataset first.")
