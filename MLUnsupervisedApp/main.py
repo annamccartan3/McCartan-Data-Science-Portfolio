@@ -10,9 +10,10 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
+from scipy.cluster.hierarchy import linkage, dendrogram
 
-
-# fix target/feature selection to be more user friendly
+# add 1 more demo??
+# PCA for >> 2 classes ? 
 # Color code graphs, consistent color scheme/font sizing
 # add tooltips and helpful user advice
 # organize code
@@ -90,7 +91,7 @@ else:
     st.sidebar.header("Dataset Options")
 
     # Dataset selection
-    data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Breast Cancer"])
+    data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Breast Cancer", "Countries"])
 
     if data_source == "Upload CSV":
         uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"])
@@ -130,14 +131,28 @@ else:
             st.session_state['X'] = breast_cancer.data
             st.session_state['y'] = breast_cancer.target
             st.session_state['target_names'] = breast_cancer.target_names.tolist()
-        
+        if data_source == "Countries":
+            file_path = 'data/Country-data.csv'
+            df = pd.read_csv(file_path)
+            st.session_state['df_raw'] = df.copy()
+            st.session_state['X'] = df.drop(columns = "country")
+
         st.success(f"{data_source} dataset loaded successfully!")
         st.session_state['df'] = df
         st.session_state['drop_cols'] = None
         st.session_state['missing_option'] = None
 
         st.sidebar.subheader("Select Target Variable")
-        target_col = st.sidebar.selectbox("Select target column", df.columns, index=len(df.columns) - 1)
+        # Dynamically set default target column index
+        if data_source == "Breast Cancer" and "target" in df.columns:
+            default_target_index = df.columns.get_loc("target")
+        elif data_source == "Countries" and "country" in df.columns:
+            default_target_index = df.columns.get_loc("country")
+        else:
+            default_target_index = len(df.columns) - 1  # fallback to last column
+        
+        # Selectbox with dynamic default
+        target_col = st.sidebar.selectbox("Select target column", df.columns, index=default_target_index)
         st.session_state['target_col'] = target_col
 
     # === Feature Selection & Training Parameters ===
@@ -170,6 +185,7 @@ else:
         st.dataframe(df_raw.head())
         y_values = st.session_state['y']
         num_classes = len(np.unique(y_values))
+        st.session_state['num_classes'] = num_classes
         st.write(f"Number of unique classes in target: {num_classes}")
 
     # Tabs
@@ -224,13 +240,141 @@ else:
                 params = {}
 
                 st.session_state["model_name"] = model_name
-
+                
+                # If PCA was chosen, display cumulative explained variance
                 if model_name == "Principal Component Analysis":
-                    params["n_components"] = st.slider("Number of Components", 1, 20, 2, help="Number of Components: Choose the number of components to retain. Higher values capture more variance but may reduce interpretability.")
+                    n_samples, n_features = X_scaled.shape
+                    min_components = min(20, n_features)
+                    pca_full = PCA(n_components=min_components).fit(X_scaled)
+                    explained_variance = pca_full.explained_variance_ratio_
+                    cumulative_variance = np.cumsum(explained_variance)
+
+                    # Streamlit layout
+                    st.subheader("PCA Explained Variance")
+
+                    col1, col2 = st.columns(2)
+
+                    # Bar Chart
+                    with col1:
+                        fig1, ax1 = plt.subplots()
+                        ax1.bar(range(1, len(explained_variance)+1), explained_variance, color='skyblue')
+                        ax1.set_xlabel('Principal Component')
+                        ax1.set_ylabel('Explained Variance Ratio')
+                        ax1.set_title('Explained Variance by Component')
+                        ax1.set_xticks(range(1, len(explained_variance)+1))
+                        st.pyplot(fig1)
+
+                    # Cumulative Variance Plot
+                    with col2:
+                        fig2, ax2 = plt.subplots()
+                        ax2.plot(range(1, len(cumulative_variance)+1), cumulative_variance, marker='o', linestyle='--', color='green')
+                        ax2.set_xlabel('Number of Components')
+                        ax2.set_ylabel('Cumulative Explained Variance')
+                        ax2.set_title('Cumulative Variance Explained')
+                        ax2.set_xticks(range(1, len(cumulative_variance)+1))
+                        ax2.grid(True)
+                        st.pyplot(fig2)
+                        # Explain the purpose of this plot
+                        st.info("💡 Look for the 'elbow' in the cumulative curve to determine an optimal number of components.")
+                
+                    params["n_components"] = st.slider("Number of Components", 1, min_components, 2, help="Number of Components: Choose the number of components to retain. Higher values capture more variance but may reduce interpretability.")
+                    
+                # If KMeans was chosen, output the Elbow plot & Silhouette scores 
                 elif model_name == "K-Means Clustering":
-                    params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, 2, help="Number of Clusters: [insert description here]")
+                    ks = list(range(2, 11))
+                    wcss = []
+                    silhouette_scores = []
+
+                    for k in ks:
+                        kmeans = KMeans(n_clusters=k, random_state=st.session_state["random_state"])
+                        labels = kmeans.fit_predict(X_scaled)
+                        wcss.append(kmeans.inertia_)
+                        silhouette_scores.append(silhouette_score(X_scaled, labels))
+
+                    # Store results
+                    st.session_state["ks"] = ks
+                    st.session_state["wcss"] = wcss
+                    st.session_state["silhouette_scores"] = silhouette_scores
+
+                    st.subheader("K-Means Clustering Optimization")
+
+                    col1, col2 = st.columns(2)
+
+                    # Check that metrics are available
+                    if "wcss" in st.session_state and "silhouette_scores" in st.session_state and "ks" in st.session_state:
+                        ks = st.session_state["ks"]
+                        wcss = st.session_state["wcss"]
+                        silhouette_scores = st.session_state["silhouette_scores"]
+
+                        # Elbow Plot
+                        with col1: 
+                            fig1, ax1 = plt.subplots()
+                            ax1.plot(ks, wcss, marker='o')
+                            ax1.set_xlabel('Number of clusters (k)')
+                            ax1.set_ylabel('Within-Cluster Sum of Squares (WCSS)')
+                            ax1.set_title('Elbow Method for Optimal k')
+                            ax1.grid(True)
+                            st.pyplot(fig1)
+                            # Explain the purpose of this plot
+                            st.info("💡 Ideal clustering minimizes the Within-Cluster Sum of Squares (WCSS). Look for the 'elbow' point of sharp decrease to determine an optimal k value.")
+
+                        # Silhouette Plot
+                        with col2:
+                            fig2, ax2 = plt.subplots()
+                            ax2.plot(ks, silhouette_scores, marker='o', color='green')
+                            ax2.set_xlabel('Number of clusters (k)')
+                            ax2.set_ylabel('Silhouette Score')
+                            ax2.set_title('Silhouette Score for Optimal k')
+                            ax2.grid(True)
+                            st.pyplot(fig2)
+                            # Explain the purpose of this plot
+                            st.info("💡 The sillhouette score quantifies how similar an object is to its own cluster compared to other clusters. A higher silhouette score indicates better clustering.")
+                    
+                        params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, 2, help="Number of Clusters: [insert description here]")
+                    
+                    else:
+                        st.warning("Please compute WCSS and Silhouette Scores before visualizing.")
+                
+                # If Hierarchical was chosen, output the dendogram w/ truncation options
                 elif model_name == "Hierarchical Clustering":
-                    params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, 4, help="Number of Clusters: [insert description here]")
+
+                    # Slider for the number of clusters to display if truncation is enabled
+                    st.session_state['p_value'] = st.slider("Number of clusters to display in dendrogram (p)",
+                                        min_value=2,
+                                        max_value=max(st.session_state['num_classes'], 20),
+                                        value=max(st.session_state['num_classes'], 20))
+                    truncate_mode = "lastp"
+
+                    # Safe label selection from dataset
+                    if "target" in df.columns and 'target_names' in st.session_state:
+                        labels = [st.session_state['target_names'][val] for val in df["target"]]
+                    elif target_col in df.columns:
+                        labels = df[target_col].tolist()
+                    else:
+                        labels = df.index.astype(str).tolist()
+
+                    # Linkage and dendrogram plot
+                    Z = linkage(X_scaled, method="ward")
+                    fig1, ax1 = plt.subplots(figsize=(15,5))
+                    dendrogram(
+                        Z,
+                        labels=labels,  # Replace with your actual labels if necessary
+                        truncate_mode=truncate_mode, 
+                        p = st.session_state['p_value']
+                    )
+                    ax1.set_title("Hierarchical Clustering Dendrogram", fontsize=16)
+                    ax1.set_xlabel(target_col.capitalize(), fontsize=14)
+                    ax1.set_ylabel("Distance", fontsize=14)
+
+                    # Rotate x-tick labels if needed
+                    if ax1.get_xticks().size > 0:
+                        plt.setp(ax1.get_xticklabels(), rotation=90)
+                        plt.setp(ax1.get_yticklabels(), fontsize=12)
+
+                    st.pyplot(fig1)
+                    
+                    params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, 3, help="Number of Clusters: [insert description here]")
+
 
                 if st.button("Train Model"): # Train model
 
@@ -242,102 +386,20 @@ else:
                     if model_name == "Principal Component Analysis":
                         X_pca = model.fit_transform(X_scaled)
                         st.session_state['X_pca'] = X_pca 
-                        st.success(f"{model_name} trained successfully!")
-
-                        pca_full = PCA(n_components=params["n_components"]).fit(X_scaled)
-                        explained_variance = pca_full.explained_variance_ratio_
-                        cumulative_variance = np.cumsum(explained_variance)
-
-                        # Streamlit layout
-                        st.subheader("PCA Explained Variance")
-
-                        col1, col2 = st.columns(2)
-
-                        # Bar Chart
-                        with col1:
-                            fig1, ax1 = plt.subplots()
-                            ax1.bar(range(1, len(explained_variance)+1), explained_variance, color='skyblue')
-                            ax1.set_xlabel('Principal Component')
-                            ax1.set_ylabel('Explained Variance Ratio')
-                            ax1.set_title('Explained Variance by Component')
-                            ax1.set_xticks(range(1, len(explained_variance)+1))
-                            st.pyplot(fig1)
-
-                        # Cumulative Variance Plot
-                        with col2:
-                            fig2, ax2 = plt.subplots()
-                            ax2.plot(range(1, len(cumulative_variance)+1), cumulative_variance, marker='o', linestyle='--', color='green')
-                            ax2.set_xlabel('Number of Components')
-                            ax2.set_ylabel('Cumulative Explained Variance')
-                            ax2.set_title('Cumulative Variance Explained')
-                            ax2.set_xticks(range(1, len(cumulative_variance)+1))
-                            ax2.grid(True)
-                            st.pyplot(fig2)
-                            # Explain the purpose of this plot
-                            st.info("💡 Look for the 'elbow' in the cumulative curve to determine an optimal number of components.")
                     
-                    # If KMeans was chosen, output the centroids and first few cluster assignments
+                    # If KMeans was chosen
                     if model_name == "K-Means Clustering":
                         clusters = model.fit_predict(X_scaled)
                         st.session_state['clusters'] = clusters 
-                        st.success(f"{model_name} trained successfully!")
-
-                        ks = list(range(2, 11))
-                        wcss = []
-                        silhouette_scores = []
-
-                        for k in ks:
-                            kmeans = KMeans(n_clusters=k, random_state=st.session_state["random_state"])
-                            labels = kmeans.fit_predict(X_scaled)
-                            wcss.append(kmeans.inertia_)
-                            silhouette_scores.append(silhouette_score(X_scaled, labels))
-
-                        # Store results
-                        st.session_state["ks"] = ks
-                        st.session_state["wcss"] = wcss
-                        st.session_state["silhouette_scores"] = silhouette_scores
-
-                        st.subheader("K-Means Clustering Optimization")
-
-                        col1, col2 = st.columns(2)
-
-                        # Check that metrics are available
-                        if "wcss" in st.session_state and "silhouette_scores" in st.session_state and "ks" in st.session_state:
-                            ks = st.session_state["ks"]
-                            wcss = st.session_state["wcss"]
-                            silhouette_scores = st.session_state["silhouette_scores"]
-
-                            # Elbow Plot
-                            with col1: 
-                                fig1, ax1 = plt.subplots()
-                                ax1.plot(ks, wcss, marker='o')
-                                ax1.set_xlabel('Number of clusters (k)')
-                                ax1.set_ylabel('Within-Cluster Sum of Squares (WCSS)')
-                                ax1.set_title('Elbow Method for Optimal k')
-                                ax1.grid(True)
-                                st.pyplot(fig1)
-                                # Explain the purpose of this plot
-                                st.info("💡 The Within-Cluster Sum of Squares (WCSS) is plotted against Number of clusters (k). Look for the 'elbow' point of sharp decrease to determine an optimal k value.")
-
-                            # Silhouette Plot
-                            with col2:
-                                fig2, ax2 = plt.subplots()
-                                ax2.plot(ks, silhouette_scores, marker='o', color='green')
-                                ax2.set_xlabel('Number of clusters (k)')
-                                ax2.set_ylabel('Silhouette Score')
-                                ax2.set_title('Silhouette Score for Optimal k')
-                                ax2.grid(True)
-                                st.pyplot(fig2)
-                                # Explain the purpose of this plot
-                                st.info("💡 The sillhouette score quantifies how similar an object is to its own cluster compared to other clusters. A higher silhouette score indicates better clustering.")
-
-                        else:
-                            st.warning("Please compute WCSS and Silhouette Scores before visualizing.")
                     
                     # If Hierarchical was chosen
                     if model_name == "Hierarchical Clustering":
                         df["Cluster"] = model.fit_predict(X_scaled)
-                        st.success(f"{model_name} trained successfully!")
+                        st.session_state['df']['Cluster'] = df["Cluster"]
+                        cluster_labels = df["Cluster"].tolist()
+                        st.session_state['cluster_labels'] = cluster_labels
+                    
+                    st.success(f"{model_name} trained successfully!")              
 
             else:
                 st.info("To train a model, please select a dataset first.")
@@ -356,7 +418,7 @@ else:
                         X_pca = st.session_state["X_pca"]
                         y = st.session_state["y"]
                         unique_classes = np.unique(y)
-                        num_classes = len(unique_classes)
+                        num_classes = st.session_state['num_classes']
 
                         # Limit number of classes for visual clarity
                         MAX_CLASSES = 10
@@ -467,6 +529,7 @@ else:
                     st.info("💡 Look for the 'elbow' in the cumulative curve to determine an optimal number of components.")
             
                 if st.session_state.get("model_name") == "K-Means Clustering":
+                    
                     if "X_scaled" in st.session_state:
                         X_scaled = st.session_state["X_scaled"]
                         n_clusters = st.session_state.get("params", {}).get("n_clusters", 2)
@@ -527,9 +590,42 @@ else:
                         ax.legend(loc="best")
                         ax.grid(True)
                         st.pyplot(fig)
+                
+                if st.session_state.get("model_name") == "Hierarchical Clustering":
+                    
+                    if "cluster_labels" in st.session_state and "X_scaled" in st.session_state:
 
-                    else:
-                        st.warning("Standardized data not found. Please preprocess your dataset first.")
+                        X_scaled = st.session_state["X_scaled"]
+                        cluster_labels = st.session_state["cluster_labels"]
+
+                        # PCA Projection (fit & transform only once)
+                        pca = PCA(n_components=2)
+                        X_pca = pca.fit_transform(X_scaled)
+                        st.session_state["pca"] = pca
+
+                        # Plotting
+                        fig, ax = plt.subplots(figsize=(8, 6))
+                        labels_unique = np.unique(cluster_labels)
+                        cmap = cm.get_cmap("tab10", len(labels_unique))
+
+                        for i, label in enumerate(labels_unique):
+                            idx = np.where(np.array(cluster_labels) == label)
+                            ax.scatter(
+                                X_pca[idx, 0],
+                                X_pca[idx, 1],
+                                label=f"Cluster {label}",
+                                c=np.array([cmap(i)]),
+                                edgecolor="k",
+                                alpha=0.7,
+                                s=60,
+                            )
+
+                        ax.set_xlabel("Principal Component 1", fontsize=12)
+                        ax.set_ylabel("Principal Component 2", fontsize=12)
+                        ax.set_title("Agglomerative Clustering on Data (via PCA)", fontsize=14)
+                        ax.legend(loc="best")
+                        ax.grid(True)
+                        st.pyplot(fig)
 
             else:
                 st.info("To view visualization, train a model in Tab 2 first.")
