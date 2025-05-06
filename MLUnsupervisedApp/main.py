@@ -2,19 +2,21 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
-from sklearn.datasets import load_breast_cancer, load_iris
-from sklearn.preprocessing import StandardScaler
-
-from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
-
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier, export_graphviz
-import graphviz
-from sklearn.neighbors import KNeighborsClassifier
-
+import matplotlib.cm as cm
 import seaborn as sns
+from sklearn.datasets import load_breast_cancer
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+
+
+# fix target/feature selection to be more user friendly
+# Color code graphs, consistent color scheme/font sizing
+# add tooltips and helpful user advice
+# organize code
+# add thorough comments and organization
 
 # Helper Functions
 def load_data(file):
@@ -22,63 +24,52 @@ def load_data(file):
     return df
 
 def get_model(name, params):
-    if name == "Logistic Regression":
-        model = LogisticRegression(C=params["C"], max_iter=params["max_iter"], multi_class='ovr')
-    elif name == "Decision Tree":
-        model = DecisionTreeClassifier(max_depth=params["max_depth"], min_samples_split=params["min_samples_split"], min_samples_leaf=params["min_samples_leaf"])
-    elif name == "K-Nearest Neighbors":
-        model = KNeighborsClassifier(n_neighbors=params["n_neighbors"])
+    if name == "Principal Component Analysis":
+        model = PCA(n_components=params["n_components"], random_state=st.session_state['random_state'])
+    elif name == "K-Means Clustering":
+        model = KMeans(n_clusters=params["n_clusters"], random_state=st.session_state['random_state'])
+    elif name == "Hierarchical Clustering":
+        model = AgglomerativeClustering(n_clusters=params["n_clusters"], linkage="ward")
     return model
 
-def plot_confusion_matrix(y_true, y_pred, model_name):
-    cm = confusion_matrix(y_true, y_pred)
-    fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", ax=ax)
-    ax.set_xlabel("Predicted")
-    ax.set_ylabel("Actual")
-    ax.set_title(f"Confusion Matrix")
-    st.pyplot(fig)
+def drop_and_encode_features(df, target_col):
+    st.sidebar.subheader("Drop or Encode Incompatible Data")
 
-def plot_roc_curve(y_test, y_probs):
-    if y_probs is not None and len(np.unique(y_test)) == 2:
-        plt.figure()
+    feature_cols = df.drop(columns=[target_col])  # Only features
+    non_numeric_cols = feature_cols.select_dtypes(exclude=["number", "bool"]).columns.tolist()
+    high_missing_cols = feature_cols.columns[feature_cols.isnull().mean() > 0.5].tolist()
 
-        # Plot ROC Curve
-        fpr, tpr, _ = roc_curve(y_test, y_probs)
-        roc_auc = auc(fpr, tpr)
-        sns.lineplot(x=fpr, y=tpr, label=f"AUC = {roc_auc:.2f}")
+    recommended_drop = list(set(non_numeric_cols + high_missing_cols))
 
-        # Plot diagonal
-        plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
-        plt.xlabel("False Positive Rate")
-        plt.ylabel("True Positive Rate")
-        plt.title("ROC Curve")
-        plt.legend(loc="lower right")
-        plt.tight_layout()
-        st.pyplot(plt.gcf())
+    encode_cols = []
+    if non_numeric_cols:
+        encode_cols = st.sidebar.multiselect(
+            "Non-numeric columns to encode (One-Hot):",
+            options=[col for col in non_numeric_cols],
+            default=non_numeric_cols
+        )
+
+    drop_cols = st.sidebar.multiselect(
+        "Columns recommended to drop:",
+        options=feature_cols.columns.tolist(),
+        default=[col for col in recommended_drop if col not in encode_cols]
+    )
+
+    if non_numeric_cols:
+        st.sidebar.caption(f"Non-numeric columns: {', '.join(non_numeric_cols)}")
+    if high_missing_cols:
+        st.sidebar.caption(f"Columns with >50% missing: {', '.join(high_missing_cols)}")
+
+    df_cleaned = df.drop(columns=drop_cols)
+    if encode_cols:
+        df_encoded = pd.get_dummies(df_cleaned, columns=encode_cols, drop_first=True)
+        st.sidebar.success(f"Encoded {len(encode_cols)} column(s) via One-Hot Encoding.")
     else:
-        st.warning("ROC Curve only supported for binary classification.")
+        df_encoded = df_cleaned
 
-# Demo Data: Titanic
-demo = sns.load_dataset('titanic') # load dataset
-demo.dropna(subset=['age'], inplace=True) # handle missing values
-demo = pd.get_dummies(demo, columns=['sex'], drop_first=True) # encode categorical variable
-demo_kept = ['pclass', 'age', 'sibsp', 'parch', 'fare', 'sex_male', 'survived'] # select specific columns
-demo = demo[demo_kept]
-
-# Demo Data: Iris
-iris = load_iris(as_frame=True) # load dataset
-demo_2 = iris.frame
-
-# Demo Data: Breast Cancer Wisconsin dataset
-breast_cancer = load_breast_cancer()
-breast_cancer_X = breast_cancer.data  # Feature matrix
-breast_cancer_y = breast_cancer.target  # Target variable (diagnosis)
-breast_cancer_feature_names = breast_cancer.feature_names
-breast_cancer_target_names = breast_cancer.target_names
+    return df_encoded, drop_cols, encode_cols
 
 # Streamlit Interface
-
 if 'welcome_screen' not in st.session_state:
     st.session_state['welcome_screen'] = True
 
@@ -88,7 +79,7 @@ if st.session_state['welcome_screen']:
     st.write("Follow these steps to get started:")
     st.write("1. Upload a dataset or select a demo dataset.")
     st.write("2. Choose features and the target variable.")
-    st.write("3. Train a model, tune hyperparameters, and view evaluation metrics.")
+    st.write("3. Train a model and tune hyperparameters.")
     st.write("4. Visualize model performance.")
     st.button("Get Started", on_click=lambda: st.session_state.update({'welcome_screen': False}))
 else:
@@ -99,86 +90,87 @@ else:
     st.sidebar.header("Dataset Options")
 
     # Dataset selection
-    data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Titanic", "Iris", "Breast Cancer"])
+    data_source = st.sidebar.selectbox("Choose Dataset", ["Upload CSV", "Breast Cancer"])
 
-    # Upload a custom dataset
     if data_source == "Upload CSV":
-        uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"], help="Upload your dataset here. Make sure it’s in CSV format. The dataset should contain a target column for model training.")
+        uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"])
         if uploaded_file:
             df = load_data(uploaded_file)
+            st.session_state['df_raw'] = df.copy()
             st.success("Dataset loaded successfully!")
-            st.session_state.df = df
 
-            # Splitting parameters
-            st.sidebar.subheader("Training Parameters")
-            test_size = st.sidebar.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
-            random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
-            # Store parameters in session_state
-            st.session_state['test_size'] = test_size
-            st.session_state['random_state'] = random_state
-            st.sidebar.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
+            st.sidebar.subheader("Select Target Variable")
+            target_col = st.sidebar.selectbox("Select target column", df.columns, index=len(df.columns) - 1)
+            st.session_state['target_col'] = target_col
 
-            # Detect non-numeric columns, select columns to drop
-            st.sidebar.subheader("Drop Incompatible Data")
-            drop_cols = None
-            potential_drop_cols = df.select_dtypes(exclude=["number", "bool"]).columns.tolist()
-            if potential_drop_cols:
-                drop_cols = st.sidebar.multiselect(
-                    "Some columns may be incompatible with classification (e.g., strings, IDs). "
-                    "Select any you'd like to drop:",
-                    df.columns,
-                    default=list(potential_drop_cols),
-                )
-            else:
-                st.sidebar.success("All columns appear to be compatible with classification.")
-                drop_cols = st.sidebar.multiselect(
-                    "Select any you'd like to drop:",
-                    df.columns,
-                    default=None,
-                )
-            if drop_cols is not None and len(drop_cols) > 0:
-                st.sidebar.success(f"Dropped columns: {', '.join(drop_cols)}")
-            st.session_state['drop_cols'] = drop_cols # Store in session_state
+            df_preprocessed, drop_cols, encoded_cols = drop_and_encode_features(df, target_col)
 
-            # Detect missing data, select handling option
+            st.session_state['df'] = df_preprocessed
+            st.session_state['drop_cols'] = drop_cols
+            st.session_state['encoded_cols'] = encoded_cols
+
             st.sidebar.subheader("Handle Missing Data")
-            current_df = df.copy()
-            current_df.drop(columns=drop_cols, inplace=True)
+            current_df = df_preprocessed.drop(columns=[target_col])
             if current_df.isnull().values.any():
                 missing_option = st.sidebar.radio(
-                    "Missing values detected in dataset. "
-                    "How would you like to handle them?",
+                    "Missing values detected. How would you like to handle them?",
                     ("Drop rows", "Impute mean"),
                     key="missing_value_option"
                 )
             else:
-                missing_option=None
-                st.sidebar.success("No missing values detected.") # Store in session_state
+                missing_option = None
+                st.sidebar.success("No missing values detected.")
             st.session_state['missing_option'] = missing_option
-        else:
-            st.sidebar.info("Please select a dataset first.")
 
-    # Or, choose a demo dataset
     else:
-        if data_source == "Titanic":
-            df = demo
-        elif data_source == "Iris":
-            df = demo_2
-        elif data_source == "Breast Cancer":
-            df = demo_3
-        st.success(f"{data_source} dataset loaded successfully!")
-        drop_cols=None
-        missing_option=None
-
-        # Splitting parameters
-        st.sidebar.subheader("Training Parameters")
-        test_size = st.sidebar.slider("Test set size (fraction)", 0.1, 0.5, 0.2, step=0.05)
-        random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
-        st.session_state['test_size'] = test_size   # Store parameters in session_state
-        st.session_state['random_state'] = random_state     # Store parameters in session_state
-        st.sidebar.success(f"Parameters saved! Test size: {test_size}, Random state: {random_state}")
+        if data_source == "Breast Cancer":
+            breast_cancer = load_breast_cancer(as_frame=True)
+            df = breast_cancer.frame
+            st.session_state['df_raw'] = df.copy()
+            st.session_state['X'] = breast_cancer.data
+            st.session_state['y'] = breast_cancer.target
+            st.session_state['target_names'] = breast_cancer.target_names.tolist()
         
-        st.session_state.df = df
+        st.success(f"{data_source} dataset loaded successfully!")
+        st.session_state['df'] = df
+        st.session_state['drop_cols'] = None
+        st.session_state['missing_option'] = None
+
+        st.sidebar.subheader("Select Target Variable")
+        target_col = st.sidebar.selectbox("Select target column", df.columns, index=len(df.columns) - 1)
+        st.session_state['target_col'] = target_col
+
+    # === Feature Selection & Training Parameters ===
+    if 'df' in st.session_state:
+        df = st.session_state['df']
+        target_col = st.session_state['target_col']
+
+        st.sidebar.subheader("Select Feature Variables")
+        feature_candidates = [col for col in df.columns if col != target_col]
+        default_features = feature_candidates
+
+        selected_features = st.sidebar.multiselect("Select feature columns", feature_candidates, default=default_features)
+        st.session_state['selected_features'] = selected_features
+
+        st.session_state['X'] = df[selected_features]
+        st.session_state['y'] = df[target_col]
+        st.session_state['kept_cols'] = selected_features + [target_col]
+
+        st.sidebar.subheader("Set Training Parameters")
+        random_state = st.sidebar.number_input("Random state (seed)", value=42, step=1)
+        st.session_state['random_state'] = random_state
+        st.sidebar.success(f"Random state set to: {random_state}")
+
+    # Store source name
+    st.session_state['data_source'] = data_source
+
+    # Display preview and class count
+    if 'df' in st.session_state:
+        df_raw = st.session_state['df_raw']
+        st.dataframe(df_raw.head())
+        y_values = st.session_state['y']
+        num_classes = len(np.unique(y_values))
+        st.write(f"Number of unique classes in target: {num_classes}")
 
     # Tabs
     tab1, tab2, tab3 = st.tabs(["Refine Data", "Train Model", "Visualization"])
@@ -187,13 +179,9 @@ else:
     with tab1:
         st.header("Refine Data")
         if 'df' in st.session_state:
-            df = st.session_state.df
-            drop_cols = st.session_state.get('drop_cols')
-            missing_option = st.session_state.get('missing_option')
-
-            # Drop non-numeric columns
-            if drop_cols != None:
-                df.drop(columns=drop_cols, inplace=True)
+            df = st.session_state['df']
+            data_source = st.session_state['data_source']
+            missing_option = st.session_state['missing_option']
 
             # Handle missing values
             if missing_option != None:
@@ -205,229 +193,343 @@ else:
                         df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
                         st.sidebar.success("Missing numeric values have been imputed with the column mean.")
 
-            # Choose target/feature variables
-            st.subheader("Choose Variables")
-            with st.expander("Select target variable"):
-                target = st.selectbox("Choose target column", df.columns, index=(len(df.columns)-1))
-            with st.expander("Select feature variables"):
-                features = st.multiselect("Select feature columns", [col for col in df.columns if col != target], default=[col for col in df.columns if col != target])
-            st.session_state['features'] = features
-            st.session_state['target'] = target
-
             # Display Dataframe
-            kept_cols = features + [target]
+            st.write("Preview of processed dataset:")
+            kept_cols = st.session_state['kept_cols']
             df = df[kept_cols]
             st.dataframe(df.head())
 
-            # Option to scale data
-            st.subheader("Scale Data")
-            scaling_option = st.selectbox("Select scaling method:", ["None", "StandardScaler"])
-            if scaling_option=="StandardScaler":
-                numeric_cols = df[features].select_dtypes(include='number').columns
-                st.success(f"Scaled columns: {', '.join(numeric_cols)}")
-            st.session_state['scaling_option'] = scaling_option
+            X = st.session_state['X']
+            y = st.session_state['y']
 
+            # Scale data
+            st.subheader("Scale Data")
+            scaler = StandardScaler()
+            X_scaled = scaler.fit_transform(X)
+            st.session_state['X_scaled'] = X_scaled # Store in session_state
+            st.success(f"Data scaled automatically!")
+            st.info("💡 Unsupervised methods work best when features are on the same scale, so that no single variable dominates the analysis.")
         else:
             st.info("Please select a dataset first.")
 
     # Tab 2: Train Model
-    with tab2:
-        st.header("Train Model")
-        if 'df' in st.session_state:
-            df = st.session_state.df
-            features = st.session_state.get('features', [])
-            target = st.session_state.get('target', None)
-            scaling_option = st.session_state.get('scaling_option', 'None')
-            model_name = st.selectbox("Select model", ["Principal Component Analysis", "K-Means Clustering", "Hierarchical Clustering"])
-            params = {}
-            if model_name == "Principal Component Analysis":
-                params["C"] = 1.0
-                params["max_iter"] = 300
-            if model_name == "Decision Tree":
-                st.subheader("Set Hyperparameters")
-                params["max_depth"] = st.slider("Max Depth", 1, 10, 2, help="Max Depth: Controls the maximum depth of the tree. Deeper trees tend to overfit")
-                params["min_samples_split"] = st.slider("Min Samples per Split", 1, 10, 2, help="Min Samples per Split: The minimum number of samples required to split an internal node. Higher values help limit overfitting.")
-                params["min_samples_leaf"] = st.slider("Min Samples per Leaf", 1, 10, 2, help="Min Samples per Leaf: The minimum number of samples required to be at a leaf node. Higher values help limit overfitting.")
-            elif model_name == "K-Nearest Neighbors":
-                st.subheader("Set Hyperparameters")
-                params["n_neighbors"] = st.slider("Number of Neighbors (k)", 1, 21, 5, help="Number of Neighbors (k): The number of neighbors to consider when making a prediction. A smaller K can lead to a model that's sensitive to noise, while a larger K can smooth out the decision boundary.")
+        with tab2:
+            st.header("Train Model")
+            if 'df' in st.session_state:
+                df = st.session_state['df']
+                features = st.session_state.get('features', [])
+                target = st.session_state.get('target', None)
+                X_scaled = st.session_state['X_scaled']
+                model_name = st.selectbox("Select model", ["Principal Component Analysis", "K-Means Clustering", "Hierarchical Clustering"])
+                params = {}
 
-            if st.button("Train Model"):
-                X = df[features]
-                y = df[target]
+                st.session_state["model_name"] = model_name
 
-                # Use parameters from sidebar
-                test_size = st.session_state.get('test_size', 0.2)
-                random_state = st.session_state.get('random_state', 42)
+                if model_name == "Principal Component Analysis":
+                    params["n_components"] = st.slider("Number of Components", 1, 20, 2, help="Number of Components: Choose the number of components to retain. Higher values capture more variance but may reduce interpretability.")
+                elif model_name == "K-Means Clustering":
+                    params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, 2, help="Number of Clusters: [insert description here]")
+                elif model_name == "Hierarchical Clustering":
+                    params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, 4, help="Number of Clusters: [insert description here]")
 
-                X_train, X_test, y_train, y_test = train_test_split(
-                    X, y, test_size=test_size, random_state=random_state)
-                
-                # Scale data if selected
-                if scaling_option == "StandardScaler":
-                    scaler = StandardScaler()
-                    numeric_cols = X_train.select_dtypes(include='number').columns
+                if st.button("Train Model"): # Train model
 
-                    # It is important to center and scale the features since PCA is sensitive to the variable scales.
-scaler = StandardScaler()
-X_std = scaler.fit_transform(X)
-
-                    X_train_scaled = X_train.copy()
-                    X_test_scaled = X_test.copy()
-                    X_train_scaled[numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
-                    X_test_scaled[numeric_cols] = scaler.transform(X_test[numeric_cols])
-
-                    X_train = X_train_scaled
-                    X_test = X_test_scaled
-
-                # Train model
-                model = get_model(model_name, params)
-                model.fit(X_train, y_train)
-                y_pred = model.predict(X_test)
-                if len(np.unique(y)) == 2:
-                    try:
-                        y_probs = model.predict_proba(X_test)[:, 1]
-                    except (AttributeError, IndexError):
-                        y_probs = None
-                else:
-                    y_probs = None
-
-                st.success(f"{model_name} trained successfully!")
-                st.session_state["results"] = {
-                    "model_name": model_name,
-                    "y_test": y_test,
-                    "y_pred": y_pred,
-                    "y_probs": y_probs
-                }
-
-                # Calculate metrics
-                accuracy = accuracy_score(y_test, y_pred)
-                precision = precision_score(y_test, y_pred, average="weighted")
-                recall = recall_score(y_test, y_pred, average="weighted")
-                f1 = f1_score(y_test, y_pred, average="weighted")
-
-                st.subheader("Performance Summary")
-                with st.expander("What do these metrics mean?"):
-                    st.markdown("""
-                    - **Accuracy**: Proportion of total predictions that were correct.
-                    - **Precision**: Of all predicted positives, how many were actually positive.
-                    - **Recall**: Of all actual positives, how many were correctly predicted.
-                    - **F1 Score**: Measures the balance between Precision & Recall (closer to 1 = better balance)
-                    """)
-
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Accuracy", f"{accuracy:.2f}")
-                with col2:
-                    st.metric("Precision", f"{precision:.2f}")
-                col3, col4 = st.columns(2)
-                with col3:
-                    st.metric("Recall", f"{recall:.2f}")
-                with col4:
-                    st.metric("F1 Score", f"{f1:.2f}")
-                
-                # If Logistic Regression was chosen, plot Feature Importance
-                if model_name == "Logistic Regression":
-                    st.subheader("Feature Importance")
-
-                    if len(model.classes_) == 2:
-                        coeff = pd.Series(model.coef_[0], index=X.columns)
-                        coeff = coeff.sort_values()
-
-                        fig, ax = plt.subplots(figsize=(10, 6))
-                        sns.barplot(x=coeff.values, y=coeff.index, palette='coolwarm', ax=ax)
-                        ax.set_title('Feature Importance (Coefficients)')
-                        ax.set_ylabel('')
-                        st.pyplot(fig)
-                    else:
-                        coeff = pd.DataFrame(model.coef_.T, index=X.columns, columns=model.classes_)
-                        styled_coeff = coeff.style.background_gradient(cmap='coolwarm').format("{:.3f}")
-                        st.dataframe(styled_coeff)
-                
-                # If KNN was chosen, plot Accuracy vs k
-                if model_name == "K-Nearest Neighbors":
-                    st.subheader("KNN Visualization")
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        # Define a range of k values to explore for all odd numbers
-                        k_values = list(range(1, 22, 2))
-                        accuracy_scores = []
-                        # Loop through different values of k, train a KNN model on data, record accuracy
-                        for k in k_values:
-                            knn = KNeighborsClassifier(n_neighbors=k)
-                            knn.fit(X_train, y_train)
-                            y_pred = knn.predict(X_test)
-                            accuracy_scores.append(accuracy_score(y_test, y_pred))
-                        # Plot accuracy vs. number of neighbors (k)
-                        fig, ax = plt.subplots()
-                        ax.plot(k_values, accuracy_scores, marker='o')
-                        ax.set_xlabel('Number of Neighbors: k')
-                        ax.set_ylabel('Accuracy')
-                        ax.set_title('Accuracy')
-                        odd_ticks = [x for x in range(int(1), int(21)+1) if x % 2 == 1]
-                        ax.set_xticks(odd_ticks)
-                        st.pyplot(fig)
+                    model = get_model(model_name, params)
+                    st.session_state["model"] = model
+                    random_state = st.session_state.get('random_state', 42)
                     
-                    with col2:
-                        # Define a range of k values to explore for all odd numbers
-                        k_values = list(range(1, 22, 2))
-                        f1_scores = []
-                        # Loop through different values of k, train a KNN model on data, record F1 score
-                        for k in k_values:
-                            knn = KNeighborsClassifier(n_neighbors=k)
-                            knn.fit(X_train, y_train)
-                            y_pred = knn.predict(X_test)
-                            f1_scores.append(f1_score(y_test, y_pred, average="weighted"))
-                        # Plot F1 vs. number of neighbors (k)
-                        fig, ax = plt.subplots()
-                        ax.plot(k_values, f1_scores, marker='o')
-                        ax.set_xlabel('Number of Neighbors: k')
-                        ax.set_ylabel('F1 Score')
-                        ax.set_title('F1 Score')
-                        odd_ticks = [x for x in range(int(1), int(21)+1) if x % 2 == 1]
-                        ax.set_xticks(odd_ticks)
+                    # If PCA was chosen, display cumulative explained variance
+                    if model_name == "Principal Component Analysis":
+                        X_pca = model.fit_transform(X_scaled)
+                        st.session_state['X_pca'] = X_pca 
+                        st.success(f"{model_name} trained successfully!")
+
+                        pca_full = PCA(n_components=params["n_components"]).fit(X_scaled)
+                        explained_variance = pca_full.explained_variance_ratio_
+                        cumulative_variance = np.cumsum(explained_variance)
+
+                        # Streamlit layout
+                        st.subheader("PCA Explained Variance")
+
+                        col1, col2 = st.columns(2)
+
+                        # Bar Chart
+                        with col1:
+                            fig1, ax1 = plt.subplots()
+                            ax1.bar(range(1, len(explained_variance)+1), explained_variance, color='skyblue')
+                            ax1.set_xlabel('Principal Component')
+                            ax1.set_ylabel('Explained Variance Ratio')
+                            ax1.set_title('Explained Variance by Component')
+                            ax1.set_xticks(range(1, len(explained_variance)+1))
+                            st.pyplot(fig1)
+
+                        # Cumulative Variance Plot
+                        with col2:
+                            fig2, ax2 = plt.subplots()
+                            ax2.plot(range(1, len(cumulative_variance)+1), cumulative_variance, marker='o', linestyle='--', color='green')
+                            ax2.set_xlabel('Number of Components')
+                            ax2.set_ylabel('Cumulative Explained Variance')
+                            ax2.set_title('Cumulative Variance Explained')
+                            ax2.set_xticks(range(1, len(cumulative_variance)+1))
+                            ax2.grid(True)
+                            st.pyplot(fig2)
+                            # Explain the purpose of this plot
+                            st.info("💡 Look for the 'elbow' in the cumulative curve to determine an optimal number of components.")
+                    
+                    # If KMeans was chosen, output the centroids and first few cluster assignments
+                    if model_name == "K-Means Clustering":
+                        clusters = model.fit_predict(X_scaled)
+                        st.session_state['clusters'] = clusters 
+                        st.success(f"{model_name} trained successfully!")
+
+                        ks = list(range(2, 11))
+                        wcss = []
+                        silhouette_scores = []
+
+                        for k in ks:
+                            kmeans = KMeans(n_clusters=k, random_state=st.session_state["random_state"])
+                            labels = kmeans.fit_predict(X_scaled)
+                            wcss.append(kmeans.inertia_)
+                            silhouette_scores.append(silhouette_score(X_scaled, labels))
+
+                        # Store results
+                        st.session_state["ks"] = ks
+                        st.session_state["wcss"] = wcss
+                        st.session_state["silhouette_scores"] = silhouette_scores
+
+                        st.subheader("K-Means Clustering Optimization")
+
+                        col1, col2 = st.columns(2)
+
+                        # Check that metrics are available
+                        if "wcss" in st.session_state and "silhouette_scores" in st.session_state and "ks" in st.session_state:
+                            ks = st.session_state["ks"]
+                            wcss = st.session_state["wcss"]
+                            silhouette_scores = st.session_state["silhouette_scores"]
+
+                            # Elbow Plot
+                            with col1: 
+                                fig1, ax1 = plt.subplots()
+                                ax1.plot(ks, wcss, marker='o')
+                                ax1.set_xlabel('Number of clusters (k)')
+                                ax1.set_ylabel('Within-Cluster Sum of Squares (WCSS)')
+                                ax1.set_title('Elbow Method for Optimal k')
+                                ax1.grid(True)
+                                st.pyplot(fig1)
+                                # Explain the purpose of this plot
+                                st.info("💡 The Within-Cluster Sum of Squares (WCSS) is plotted against Number of clusters (k). Look for the 'elbow' point of sharp decrease to determine an optimal k value.")
+
+                            # Silhouette Plot
+                            with col2:
+                                fig2, ax2 = plt.subplots()
+                                ax2.plot(ks, silhouette_scores, marker='o', color='green')
+                                ax2.set_xlabel('Number of clusters (k)')
+                                ax2.set_ylabel('Silhouette Score')
+                                ax2.set_title('Silhouette Score for Optimal k')
+                                ax2.grid(True)
+                                st.pyplot(fig2)
+                                # Explain the purpose of this plot
+                                st.info("💡 The sillhouette score quantifies how similar an object is to its own cluster compared to other clusters. A higher silhouette score indicates better clustering.")
+
+                        else:
+                            st.warning("Please compute WCSS and Silhouette Scores before visualizing.")
+                    
+                    # If Hierarchical was chosen
+                    if model_name == "Hierarchical Clustering":
+                        df["Cluster"] = model.fit_predict(X_scaled)
+                        st.success(f"{model_name} trained successfully!")
+
+            else:
+                st.info("To train a model, please select a dataset first.")
+
+    # Tab 3: Visualization
+        with tab3:
+            st.header("Visualization")
+            if "model_name" in st.session_state:
+                st.subheader(model_name)
+                if st.session_state["model_name"] == "Principal Component Analysis":
+
+                    st.subheader("2D Projection")
+                    
+                    # Ensure PCA data and labels are available
+                    if "X_pca" in st.session_state and "y" in st.session_state:
+                        X_pca = st.session_state["X_pca"]
+                        y = st.session_state["y"]
+                        unique_classes = np.unique(y)
+                        num_classes = len(unique_classes)
+
+                        # Limit number of classes for visual clarity
+                        MAX_CLASSES = 10
+                        if num_classes > MAX_CLASSES:
+                            st.warning(f"PCA plot is only supported for up to {MAX_CLASSES} classes. Your data has {num_classes}.")
+                        else:
+                            # Get target names if available
+                            target_names = st.session_state.get("target_names", [str(label) for label in unique_classes])
+
+                            # Color palette adapts to number of classes
+                            palette = sns.color_palette("hls", num_classes)
+
+                            # Begin plotting
+                            plt.figure(figsize=(8, 6))
+                            for color, class_val, label in zip(palette, unique_classes, target_names):
+                                plt.scatter(
+                                    X_pca[y == class_val, 0],
+                                    X_pca[y == class_val, 1],
+                                    color=color, alpha=0.7, label=label,
+                                    edgecolor='k', s=60
+                                )
+
+                            plt.xlabel("Principal Component 1")
+                            plt.ylabel("Principal Component 2")
+                            plt.title("2D Projection of Dataset")
+                            plt.legend(loc="best")
+                            plt.grid(True)
+                            plt.axis('equal')  # Ensures arrows are proportional
+
+                            # Option to show PCA feature loadings
+                            show_loadings = st.checkbox("Show PCA Feature Loadings (Biplot Arrows)")
+                            if show_loadings:
+                                # Slider for scaling factor
+                                scaling_factor = st.slider("Adjust arrow scaling", 1.0, 100.0, 50.0, step=1.0)
+
+                                model = st.session_state.get("model")
+                                feature_names = st.session_state.get("selected_features", [])
+
+                                if model and hasattr(model, "components_"):
+                                    loadings = model.components_.T  # Shape: (n_features, n_components)
+
+                                    # Check for shape mismatch
+                                    if len(feature_names) != loadings.shape[0]:
+                                        st.error("Mismatch between selected features and PCA loadings.")
+                                    else:
+                                        for i, feature in enumerate(feature_names):
+                                            x_loading = scaling_factor * loadings[i, 0]
+                                            y_loading = scaling_factor * loadings[i, 1]
+
+                                            plt.arrow(0, 0, x_loading, y_loading,
+                                                    color='red', width=0.005, head_width=0.1, alpha=0.7, length_includes_head=True)
+
+                                            plt.text(x_loading * 1.15, y_loading * 1.15, feature,
+                                                    color='darkred', fontsize=9, ha='center', va='center')
+                                else:
+                                    st.error("PCA model not found or not fitted.")
+
+                            # Show the plot
+                            st.pyplot(plt.gcf())
+
+                    else:
+                        st.warning("Please train the PCA model in the 'Train PCA' tab first.")
+                                    
+                    # Example: Fit PCA and prepare data
+                    pca = PCA(n_components=params["n_components"])
+                    pca.fit(X_scaled)
+                    explained = pca.explained_variance_ratio_ * 100  # Convert to percentage
+                    cumulative = np.cumsum(explained)
+                    components = np.arange(1, len(explained) + 1)
+
+                    # Create the combined plot
+                    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+                    # Bar plot for individual variance explained
+                    bar_color = 'steelblue'
+                    ax1.bar(components, explained, color=bar_color, alpha=0.8, label='Individual Variance')
+                    ax1.set_xlabel('Principal Component')
+                    ax1.set_ylabel('Individual Variance Explained (%)', color=bar_color)
+                    ax1.tick_params(axis='y', labelcolor=bar_color)
+                    ax1.set_xticks(components)
+                    ax1.set_xticklabels([f"PC{i}" for i in components])
+
+                    # Add percentage labels on each bar
+                    for i, v in enumerate(explained):
+                        ax1.text(components[i], v + 1, f"{v:.1f}%", ha='center', va='bottom', fontsize=10, color='black')
+
+                    # Line plot for cumulative variance explained (on secondary y-axis)
+                    ax2 = ax1.twinx()
+                    line_color = 'crimson'
+                    ax2.plot(components, cumulative, color=line_color, marker='o', label='Cumulative Variance')
+                    ax2.set_ylabel('Cumulative Variance Explained (%)', color=line_color)
+                    ax2.tick_params(axis='y', labelcolor=line_color)
+                    ax2.set_ylim(0, 100)
+
+                    # Combine legends from both axes
+                    lines1, labels1 = ax1.get_legend_handles_labels()
+                    lines2, labels2 = ax2.get_legend_handles_labels()
+                    ax1.legend(lines1 + lines2, labels1 + labels2, loc='center right', bbox_to_anchor=(0.85, 0.5))
+
+                    plt.title('PCA: Variance Explained', pad=20)
+                    plt.tight_layout()
+
+                    # Display in Streamlit
+                    st.subheader("Explained Variance")
+                    st.pyplot(fig)
+
+                    # Graphing tip
+                    st.info("💡 Look for the 'elbow' in the cumulative curve to determine an optimal number of components.")
+            
+                if st.session_state.get("model_name") == "K-Means Clustering":
+                    if "X_scaled" in st.session_state:
+                        X_scaled = st.session_state["X_scaled"]
+                        n_clusters = st.session_state.get("params", {}).get("n_clusters", 2)
+
+                        color_mode = st.selectbox("Color points by", ["K-Means Clusters", "Target Labels"])
+
+                        if color_mode == "K-Means Clusters":
+                            # If not stored or cluster count doesn't match, recompute
+                            if "kmeans" not in st.session_state or \
+                            st.session_state.get("params", {}).get("n_clusters", None) != n_clusters:
+                                kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                                clusters = kmeans.fit_predict(X_scaled)
+                                st.session_state["kmeans"] = kmeans
+                                st.session_state["clusters"] = clusters
+                                st.session_state["params"] = {"n_clusters": n_clusters}
+                            else:
+                                kmeans = st.session_state["kmeans"]
+                                clusters = st.session_state["clusters"]
+
+                            color_labels = clusters
+                            label_names = [f"Cluster {i}" for i in np.unique(clusters)]
+                        else:
+                            if "y" not in st.session_state:
+                                st.warning("Target variable not found in session. Please load or define a target.")
+                                st.stop()
+                            y = st.session_state["y"]
+                            color_labels = y
+                            labels = np.unique(y)
+                            label_names = (
+                                st.session_state.get("target_names", [str(i) for i in labels])
+                                if len(labels) <= 10 else [f"Class {i}" for i in labels]
+                            )
+
+                        # PCA Projection (fit & transform only once)
+                        pca = PCA(n_components=2)
+                        X_pca = pca.fit_transform(X_scaled)
+                        st.session_state["pca"] = pca
+
+                        # Plotting
+                        fig, ax = plt.subplots(figsize=(8, 6))
+                        labels_unique = np.unique(color_labels)
+                        cmap = cm.get_cmap("tab10", len(labels_unique))
+
+                        for i, label in enumerate(labels_unique):
+                            ax.scatter(
+                                X_pca[color_labels == label, 0],
+                                X_pca[color_labels == label, 1],
+                                color=cmap(i),
+                                label=label_names[i],
+                                edgecolor="k",
+                                alpha=0.7,
+                                s=60,
+                            )
+
+                        ax.set_xlabel("Principal Component 1")
+                        ax.set_ylabel("Principal Component 2")
+                        ax.set_title(f"PCA Projection Colored by {color_mode}")
+                        ax.legend(loc="best")
+                        ax.grid(True)
                         st.pyplot(fig)
 
+                    else:
+                        st.warning("Standardized data not found. Please preprocess your dataset first.")
 
-                # If Decision Tree was chosen, plot Decision Tree Visual
-                if model_name == "Decision Tree":
-                        st.subheader("Decision Tree Visualization")
-                        dot_data = export_graphviz(model,
-                                                feature_names=X.columns,
-                                                class_names=[str(cls) for cls in model.classes_],
-                                                filled=True)
-
-                        st.graphviz_chart(dot_data)
-
-
-        else:
-            st.info("To train a model, please select a dataset first.")
-        
-    # Tab 3: Visualization
-    with tab3:
-        st.header("Visualization")
-        if "results" in st.session_state:
-            y_test = st.session_state["results"]["y_test"]
-            y_pred = st.session_state["results"]["y_pred"]
-            y_probs = st.session_state["results"]["y_probs"]
-            model_name = st.session_state["results"]["model_name"]
-
-            st.subheader(model_name)
-
-            # Set up two columns for side-by-side visualization
-            col1, col2 = st.columns(2)
-            with col1:
-                plot_confusion_matrix(y_test, y_pred, model_name)      
-                with st.expander("What does this metric mean?"):
-                    st.markdown("""
-                    - **Confusion Matrix**: The Confusion Matrix shows how many of your model's predictions were correct (True Positives/Negatives, along the diagonal) and how many were incorrect (False Positives/Negatives).
-                    """)
-            with col2:
-                plot_roc_curve(y_test, y_probs)
-                with st.expander("What does this metric mean?"):
-                    st.markdown("""
-                    - **ROC Curve**: The ROC Curve shows how well your model can distinguish between positive and negative cases. The higher the Area Under the Curve (AUC), the better your model is at making this distinction.
-                    """)  
-
-        else:
-            st.info("To view visualization, train a model in Tab 2 first.")
+            else:
+                st.info("To view visualization, train a model in Tab 2 first.")
