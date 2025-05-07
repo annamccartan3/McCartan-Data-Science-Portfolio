@@ -17,10 +17,10 @@
 
 ### What is supervised machine learning?  
 Unsupervised learning refers to techniques that discover patterns in data without using labeled outcomes. As described in *Grokking Machine Learning* by **Luis G. Serrano**, these methods help reveal structure, groupings, and key relationships in datasets. Examples include:
-- Clustering – Grouping data points based on similarity (e.g., K-Means, Agglomerative)
 - Dimensionality Reduction – Simplifying high-dimensional data while preserving key variance (e.g., PCA)
+- Clustering – Grouping data points based on similarity (e.g., K-Means, Agglomerative)
 
-Whether you're analyzing hidden structures in your data or exploring high-dimensional datasets, DataQuest offers hands-on tools to apply methods like K-Means, Hierarchical Clustering, and Principal Component Analysis (PCA).
+Whether you're analyzing hidden structures in your data or exploring high-dimensional datasets, DataQuest offers hands-on tools to apply methods like Principal Component Analysis (PCA), and K-Means and Hierarchical Clustering.
 
 ---
 
@@ -59,36 +59,38 @@ Once you’re in the app, follow these steps to begin your machine learning work
 ## Datasets  
 *Choose from three built-in demo datasets or upload your own `.csv` file.*<br>
 #### Demo Datasets:
-- **[Titanic](https://en.wikipedia.org/wiki/Passengers_of_the_Titanic)** – Explore survival patterns based on passenger attributes.
-- **[Iris](https://en.wikipedia.org/wiki/Iris_flower_data_set)** – Classify iris flower species using petal and sepal measurements.
 - **[Breast Cancer](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)** – Predict tumor malignancy from medical imaging features.
+- **[Countries]([https://en.wikipedia.org/wiki/Passengers_of_the_Titanic](https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data))** – Explore demographic differences in health and economic indicators across the globe.
 
-#### DataFlex includes built-in tools for:
-- **Customizing train-test splits**: Define your training/testing ratio and set a random state for reproducibility.
-- **Dropping incompatible data**: Automatically detect and drop non-numeric/identifier columns that could interfere with model training.
+#### DataQuest includes built-in tools for:
+- **Dropping or Encoding incompatible data**: Automatically detect and encode categorical columns, or drop non-numeric/identifier columns that could interfere with model training.
 - **Handling missing values**: If missing data is found, choose to drop affected rows or impute missing values with the mean.
+- **Running Reproducible Tests**: Set a random state for reproducibility in model evaluation and visualization over time.
 
 ---
 
 ## Model Training  
 Once features and target variables are selected, choose from the following machine learning models:
-- **Logistic Regression** – Great for binary classification problems.
-- **Decision Tree** – Interpretable tree-based model that breaks classification into a series of binary steps.
-- **K-Nearest Neighbors (KNN)** – Classifies data points based on their similarity to each other.
+- **Principal Component Analysis (PCA)** – A dimensionality reduction technique that transforms features into a set of uncorrelated components for easier visualization and analysis.
+- **K-Means Clustering** –  An unsupervised learning algorithm that partitions data into k clusters based on feature similarity.
+- **Hierarchical Clustering** –  An unsupervised algorithm that builds a hierarchy of clusters using pairwise distances between data points.
 
 Additional options include:
 - Modifying the chosen target and feature variables
-- Scaling numeric data using StandardScaler
-- Tuning hyperparameters (e.g., tree depth, number of neighbors)
+- Tuning hyperparameters (e.g., number of components, number of clusters, linkage type)
 
 ---
 
 ## Evaluation Metrics  
-To assess your model, DataFlex provides key metrics:
-- **Accuracy** – Proportion of correct predictions  
-- **Precision** – Proportion of positive predictions that were actually correct  
-- **Recall** – Proportion of actual positives that were correctly predicted  
-- **F1 Score** – Harmonic mean of precision and recall
+To assess your model, DataQuest provides key metrics:
+- **Principal Component Analysis (PCA): Explained Variance**
+  - Explained Variance -
+  - Cumulative Explained Variance -
+- **K-Means Clustering: Explained Variance**
+  - WCSS
+  - Silhouette Score
+- **Hierarchical Clustering: Explained Variance**
+  - Silhouette Score
 
 These metrics are displayed after training to help you compare model effectiveness.
 
