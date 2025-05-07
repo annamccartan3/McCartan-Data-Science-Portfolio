@@ -9,13 +9,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import accuracy_score, silhouette_score
+from sklearn.metrics import silhouette_score
 from scipy.cluster.hierarchy import linkage, dendrogram
 
-# add 1 more demo??
-# PCA for >> 2 classes ? 
 # Color code graphs, consistent color scheme/font sizing
-# add tooltips and helpful user advice
+# add tooltips, metric summaries, and helpful user advice
 # organize code
 # add thorough comments and organization
 
@@ -30,7 +28,7 @@ def get_model(name, params):
     elif name == "K-Means Clustering":
         model = KMeans(n_clusters=params["n_clusters"], random_state=st.session_state['random_state'])
     elif name == "Hierarchical Clustering":
-        model = AgglomerativeClustering(n_clusters=params["n_clusters"], linkage="ward")
+        model = AgglomerativeClustering(n_clusters=params["n_clusters"], linkage=params['linkage'])
     return model
 
 def drop_and_encode_features(df, target_col):
@@ -330,19 +328,21 @@ else:
                             # Explain the purpose of this plot
                             st.info("💡 The sillhouette score quantifies how similar an object is to its own cluster compared to other clusters. A higher silhouette score indicates better clustering.")
                     
-                        params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, 2, help="Number of Clusters: [insert description here]")
+                        params["n_clusters"] = st.slider("Number of Clusters (k)", 1, 10, min(len(np.unique(y)), 10), help="Number of Clusters: [insert description here]")
                     
                     else:
                         st.warning("Please compute WCSS and Silhouette Scores before visualizing.")
-                
+                                    
                 # If Hierarchical was chosen, output the dendogram w/ truncation options
                 elif model_name == "Hierarchical Clustering":
+
+                    params["linkage"] = st.selectbox("Choose Linkage Rule", ["ward", "single", "complete", "average"])
 
                     ks = list(range(2, 11))
                     silhouette_scores = []
 
                     for k in ks:
-                        agg = AgglomerativeClustering(n_clusters=k, linkage="ward")
+                        agg = AgglomerativeClustering(n_clusters=k, linkage=params["linkage"])
                         labels = agg.fit_predict(X_scaled)
                         silhouette_scores.append(silhouette_score(X_scaled, labels))
 
@@ -384,7 +384,7 @@ else:
                         labels = df.index.astype(str).tolist()
 
                     # Linkage and dendrogram plot
-                    Z = linkage(X_scaled, method="ward")
+                    Z = linkage(X_scaled, method=params["linkage"])
                     fig1, ax1 = plt.subplots(figsize=(15,5))
                     dendrogram(
                         Z,
@@ -411,27 +411,40 @@ else:
                     model = get_model(model_name, params)
                     st.session_state["model"] = model
                     y = st.session_state['y']
-                    random_state = st.session_state.get('random_state', 42)
                     st.success(f"{model_name} trained successfully!")   
                     
                     # If PCA was chosen, display cumulative explained variance
                     if model_name == "Principal Component Analysis":
                         X_pca = model.fit_transform(X_scaled)
-                        st.session_state['X_pca'] = X_pca 
-                    
+                        st.session_state['X_pca'] = X_pca
+
+                        explained_var = model.explained_variance_ratio_
+                        cum_var = np.cumsum(explained_var)
+                        total_cum_var = cum_var[-1]  # Last value = total cumulative variance
+                        st.metric("Cumulative Explained Variance", f"{total_cum_var * 100:.2f}%")
+
                     # If KMeans was chosen
                     if model_name == "K-Means Clustering":
                         clusters = model.fit_predict(X_scaled)
                         st.session_state['clusters'] = clusters 
-                        kmeans_accuracy = accuracy_score(y, clusters)
-                        st.metric("Accuracy", f"{kmeans_accuracy*100:.2f}%")
-                    
+
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            wcss = model.inertia_
+                            st.metric("WCSS", f"{wcss:.2f}")
+                        with col2:
+                            sil_score = silhouette_score(X_scaled, clusters)
+                            st.metric("Silhouette Score", f"{sil_score:.2f}")   
+
                     # If Hierarchical was chosen
                     if model_name == "Hierarchical Clustering":
                         df["Cluster"] = model.fit_predict(X_scaled)
                         st.session_state['df']['Cluster'] = df["Cluster"]
                         cluster_labels = df["Cluster"].tolist()
-                        st.session_state['cluster_labels'] = cluster_labels            
+                        st.session_state['cluster_labels'] = cluster_labels   
+
+                        sil_score = silhouette_score(X_scaled, df["Cluster"])
+                        st.metric("Silhouette Score", f"{sil_score:.2f}")         
 
             else:
                 st.info("To train a model, please select a dataset first.")
@@ -572,7 +585,7 @@ else:
                             # If not stored or cluster count doesn't match, recompute
                             if "kmeans" not in st.session_state or \
                             st.session_state.get("params", {}).get("n_clusters", None) != n_clusters:
-                                kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                                kmeans = KMeans(n_clusters=n_clusters, random_state=st.session_state['random_state'])
                                 clusters = kmeans.fit_predict(X_scaled)
                                 st.session_state["kmeans"] = kmeans
                                 st.session_state["clusters"] = clusters
