@@ -10,7 +10,7 @@ import matplotlib.cm as cm
 import seaborn as sns
 
 from sklearn.datasets import load_breast_cancer
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
@@ -212,6 +212,7 @@ def handle_missing_values(df, missing_option):
         st.sidebar.success("Rows with missing values have been dropped.")
     elif missing_option == "Impute mean":
         numeric_cols = df.select_dtypes(include=["float", "int"]).columns
+        df = df.copy()
         df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
         st.sidebar.success("Missing numeric values have been imputed with the column mean.")
     return df
@@ -255,14 +256,11 @@ def fit_pca(X_scaled, y, selected_features=None, n_components=2):
     pca = PCA(n_components=n_components, random_state=st.session_state.get("random_state", None))
     X_pca = pca.fit_transform(X_subset)  # Fit PCA and transform the data
 
-    # Save the PCA result and the corresponding target labels in session state
-    st.session_state["X_pca"] = X_pca
-    st.session_state["y_pca"] = y_subset
-
     return X_pca, pca, y_subset
 
 def get_pca_projection(X_scaled, y, selected_features=None, n_components=2):
-    key = f"pca_{n_components}_{hash(tuple(selected_features)) if selected_features else 'all'}"
+    sf_hash = hash(tuple(selected_features)) if selected_features is not None else 'all'
+    key = f"pca_{n_components}_{sf_hash}"
     
     if key not in st.session_state:
         X_pca, pca, y_subset = fit_pca(X_scaled, y, selected_features, n_components)
@@ -271,26 +269,38 @@ def get_pca_projection(X_scaled, y, selected_features=None, n_components=2):
         st.session_state[key] = (X_pca, pca, y_subset)
     return st.session_state[key]
 
-def plot_pca_projection(X_pca, labels, label_names, title, palette):
+def plot_pca_projection(X_pca, y, target_names, title="PCA Projection", palette=None):
     """
-    Plots a 2D PCA projection with color-coded points by label.
+    Plots a 2D PCA projection colored by labels (numeric or categorical).
     """
-    fig, ax = plt.subplots(figsize=(8, 6))
-    unique_labels = np.unique(labels)
-    for color, label, name in zip(palette, unique_labels, label_names):
-        ax.scatter(
-            X_pca[labels == label, 0],
-            X_pca[labels == label, 1],
-            color=color,
-            label=name,
-            edgecolor="black",
-            alpha=0.7,
-            s=60,
-        )
+    fig, ax = plt.subplots()
+
+    # Basic input checks
+    if X_pca is None or y is None or len(X_pca) != len(y):
+        st.error("Invalid inputs for PCA projection plot.")
+        return fig
+
+    # Ensure labels are numeric indices
+    le = LabelEncoder()
+    y_numeric = le.fit_transform(y)
+    class_names = le.classes_ if target_names is None else target_names
+
+    # Color palette fallback
+    if palette is None:
+        palette = get_color_palette()
+
+    for i, target_name in enumerate(class_names):
+        mask = y_numeric == i
+        if np.any(mask):  # avoid empty scatter group
+            ax.scatter(X_pca[mask, 0], X_pca[mask, 1],
+                       label=target_name,
+                       alpha=0.7, s=60,
+                       color=palette[i % len(palette)])
+
     ax.set_xlabel("Principal Component 1")
     ax.set_ylabel("Principal Component 2")
     ax.set_title(title)
-    ax.legend(loc="best")
+    ax.legend(title="Classes")
     ax.grid(True)
     return fig
 
@@ -300,7 +310,7 @@ def plot_pca_projection_with_biplot(X_pca, y, target_names, feature_names, model
     """
     unique_classes = np.unique(y)
     num_classes = len(unique_classes)
-    palette = sns.color_palette("Set2", num_classes)
+    palette = get_color_palette()
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -390,44 +400,26 @@ def compute_clustering_metrics(X_scaled, method="kmeans", random_state=None, lin
 
     return ks, wcss_list, silhouette_scores
 
-def plot_hierarchical_clustering(X_scaled, y, cluster_labels, colors=None):
+def plot_hierarchical_clustering(df, target_names=None):
     """
-    Plots hierarchical clustering results using PCA for 2D projection.
+    Plots PCA projection of Agglomerative clusters.
     """
-    # PCA Projection (fit & transform only once, if PCA is not already available)
-    if "pca" not in st.session_state:
-        selected_features = st.session_state.get("selected_features", None)
-        X_pca, pca, _ = fit_pca(X_scaled, y, selected_features=selected_features, n_components=2)
-        st.session_state["pca"] = pca
-        st.session_state["X_pca"] = X_pca
-    else:
-        X_pca = st.session_state["X_pca"]
+    X_scaled = st.session_state.get("X_scaled")
+    y = st.session_state.get("y")
+    selected_features = st.session_state.get("selected_features", [])
     
-    # Plotting
-    fig, ax = plt.subplots(figsize=(8, 6))
-    labels_unique = np.unique(cluster_labels)
+    # Get PCA projection (uses smart cache)
+    X_pca, pca, _ = get_pca_projection(X_scaled, y, selected_features, 2)
 
-    # Define color palette if not provided
-    if colors is None:
-        colors = plt.cm.get_cmap('Set2', len(labels_unique))  # Default color palette
-    
-    for i, label in enumerate(labels_unique):
-        idx = np.where(cluster_labels == label)
-        ax.scatter(
-            X_pca[idx, 0],
-            X_pca[idx, 1],
-            label=f"Cluster {label}",
-            color=colors(i),
-            edgecolor="black",
-            alpha=0.7,
-            s=60,
-        )
+    if X_pca is None:
+        st.error("PCA projection could not be computed.")
+        return
 
-    ax.set_xlabel("Principal Component 1", fontsize=12)
-    ax.set_ylabel("Principal Component 2", fontsize=12)
-    ax.set_title("Agglomerative Clustering on Data (via PCA)", fontsize=14)
-    ax.legend(loc="best")
-    ax.grid(True)
+    labels = df["Cluster"]
+    label_names = [f"Cluster {i}" for i in sorted(df["Cluster"].unique())]
+
+    palette = get_color_palette()
+    fig = plot_pca_projection(X_pca, labels, label_names, "Hierarchical Clustering (PCA Projection)", palette)
     st.pyplot(fig)
 
 st.set_page_config(page_title="DataQuest", layout="wide") # Establish layout
@@ -536,9 +528,9 @@ with tab2:
     st.header("Train Model")
     if 'df' in st.session_state:
         df = st.session_state['df']
-        features = st.session_state.get('features', [])
-        target = st.session_state.get('target', None)
         X_scaled = st.session_state['X_scaled']
+
+        # Choose a machine learning model and configure parameters
         model_name = st.selectbox("Select model", ["Principal Component Analysis", "K-Means Clustering", "Hierarchical Clustering"],
                                     help="Choose a model for training: PCA is for dimensionality reduction, K-Means is for clustering data, and Hierarchical Clustering is another approach for grouping similar data points.")
         params = {}
@@ -551,7 +543,8 @@ with tab2:
             # Streamlit layout
             st.subheader("Principal Component Analysis")
             st.markdown("PCA reduces data dimensionality while preserving the most significant features (variance). Use the plots below to determine how many components to keep.")
-
+            st.caption("Preview of explained variance (PCA not yet trained)")
+            
             n_samples, n_features = X_scaled.shape
             min_components = min(20, n_features)
             pca_full = PCA(n_components=min_components, random_state=params.get("random_state", None)).fit(X_scaled)
@@ -595,6 +588,8 @@ with tab2:
             st.markdown("K-Means is a popular unsupervised machine learning algorithm used to partition data into K distinct clusters. It iteratively assigns data points to clusters based on their distance from the cluster centroids.")
             
             # === Calculate WCSS + Silhouette ===
+
+            # Recompute WCSS and silhouette scores only if random state or data has changed
             method_key = f"kmeans_{random_state}_{hash(X_scaled.to_numpy().data.tobytes())}"
 
             if st.session_state.get("clustering_metrics_key") != method_key:
@@ -656,6 +651,8 @@ with tab2:
                                             help="Choose the linkage rule to determine how clusters are merged. 'ward' minimizes variance, 'single' minimizes the closest pair, 'complete' minimizes the farthest pair, 'average' uses average distance.")
             
             linkage_method = params["linkage"]
+
+            # Recompute metrics if parameters or data have changed
             method_key = f"hierarchical_{linkage_method}_{hash(X_scaled.to_numpy().data.tobytes())}"
 
             if st.session_state.get("clustering_metrics_key") != method_key:
@@ -732,8 +729,8 @@ with tab2:
         # ==== TRAIN THE MODEL ====
         if st.button("Train Model"): # Train model
 
+            params["random_state"] = st.session_state["random_state"]
             model = get_model(model_name, params)
-            st.session_state["model"] = model
             y = st.session_state['y']
             st.success(f"{model_name} trained successfully!")   
             
@@ -741,12 +738,12 @@ with tab2:
             if model_name == "Principal Component Analysis":
 
                 X_pca, pca, _ = get_pca_projection(X_scaled, y, selected_features, params["n_components"])
-                st.session_state['X_pca'] = X_pca
-                st.session_state['pca'] = pca
 
                 explained_var = pca.explained_variance_ratio_
                 cum_var = np.cumsum(explained_var)
                 total_cum_var = cum_var[-1]  # Last value = total cumulative variance
+
+                # Display Cumulative Explained Variance for the selected number of components
                 st.metric("Cumulative Explained Variance", f"{total_cum_var * 100:.2f}%",
                             help="Cumulative explained variance shows the proportion of the dataset's total variance that is captured by each principal component in PCA. It is a running total of the variance explained by the first 'n' components.")
 
@@ -770,6 +767,8 @@ with tab2:
                     wcss_score = model.inertia_ if hasattr(model, "inertia_") else "N/A"
 
                 col1, col2 = st.columns(2)
+
+                # Display WCSS and silhouette score for the selected number of clusters
                 with col1:
                     st.metric("WCSS", f"{wcss_score:.2f}" if wcss_score != "N/A" else "N/A",
                               help="Within-Cluster Sum of Squares (WCSS) measures the compactness of clusters. It calculates the sum of squared distances between each data point and the centroid of its assigned cluster.")
@@ -794,8 +793,9 @@ with tab2:
                     i = ks.index(current_k)
                     sil_score = sil_scores[i]
                 else:
-                    sil_score = silhouette_score(X_scaled, clusters)
+                    sil_score = silhouette_score(X_scaled, df["Cluster"])
 
+                # Display silhouette score for the selected number of clusters
                 st.metric("Silhouette Score", f"{sil_score:.2f}",
                           help="A silhouette score ranges from -1 to +1. A higher score indicates that points are well-clustered and far from other clusters, meaning the clustering is of good quality. A negative score suggests that points might be assigned to the wrong cluster.")         
     else:
@@ -811,54 +811,39 @@ with tab3:
 
     # ==== PCA ====  
     if st.session_state.get("model_name") == "Principal Component Analysis":
+        
+        st.subheader("PCA Projection")
+        
+        X_scaled = st.session_state["X_scaled"]
+        y = st.session_state["y"]
+        selected_features = st.session_state.get("selected_features", [])
+        n_components = st.session_state["params"]["n_components"]
 
-        st.subheader("2D Projection")
+        X_pca, pca, _ = get_pca_projection(X_scaled, y, selected_features, n_components)
+        if X_pca is None or pca is None:
+            st.error("Unable to compute PCA projection.")
+            st.stop()
 
-        if "X_pca" in st.session_state and "y" in st.session_state:
-            y = st.session_state["y"]
-            num_classes = st.session_state["num_classes"]
-            MAX_CLASSES = 10
+        labels = y
+        label_names = st.session_state.get("target_names", [str(i) for i in np.unique(y)])
 
-            if num_classes > MAX_CLASSES:
-                st.warning(f"PCA plot is only supported for up to {MAX_CLASSES} classes. Your data has {num_classes}. This may result in overcrowded visualization.")
-            else:
-                target_names = st.session_state.get("target_names", [str(label) for label in np.unique(y)])
+        # Toggle biplot
+        show_loadings = st.checkbox("Show loadings (biplot)", value=False)
+        scaling_factor = st.slider("Loading arrow scale", 0.1, 2.0, 1.0)
 
-                X_scaled = st.session_state.get("X_scaled")
-                y = st.session_state.get("y")
-                selected_features = st.session_state.get("selected_features", [])
-                n_components = st.session_state.get("params", {}).get("n_components", 2)
-                X_pca, pca, y_subset = get_pca_projection(X_scaled, y, selected_features, n_components)
-
-                feature_names = st.session_state.get("selected_features", [])
-
-                show_loadings = st.checkbox("Show PCA Feature Loadings (Biplot Arrows)",
-                                            help="Feature loadings show how each feature contributes to the principal components.")
-                scaling_factor = st.slider("Adjust arrow scaling", 1.0, 100.0, 50.0, step=1.0,
-                                            help="Control the size of the arrows indicating feature contributions to the principal components.") if show_loadings else 50
-
-                fig = plot_pca_projection_with_biplot(
-                    X_pca=X_pca,
-                    y=y,
-                    target_names=target_names,
-                    feature_names=selected_features,
-                    model=pca,
-                    show_loadings=show_loadings,
-                    scaling_factor=scaling_factor
-                )
-                st.pyplot(fig)
+        if show_loadings:
+            fig = plot_pca_projection_with_biplot(X_pca, labels, label_names, selected_features, pca,
+                                                show_loadings=True, scaling_factor=scaling_factor)
         else:
-            st.warning("Please train the PCA model in the 'Train PCA' tab first.")
+            fig = plot_pca_projection(X_pca, labels, label_names, "2D PCA Projection")
+    
+        st.pyplot(fig)
 
-        # Variance Explained Plot
-        if "X_scaled" in st.session_state and "params" in st.session_state:
-            X_scaled = st.session_state["X_scaled"]
-            params = st.session_state.get("params", {})
-            X_pca, pca, y_subset = get_pca_projection(X_scaled, y, selected_features, params["n_components"])
-            fig = plot_pca_variance_explained(pca)
-            st.subheader("Explained Variance")
-            st.pyplot(fig)
-            st.info("💡 Look for the 'elbow' in the cumulative curve to determine an optimal number of components.")
+        # Also show variance explained
+        st.subheader("Variance Explained by Principal Components")
+        fig = plot_pca_variance_explained(pca)
+        st.pyplot(fig)
+        st.info("💡 Look for the 'elbow' in the cumulative curve to determine an optimal number of components.")
     
     # ==== K-Means Clustering ====  
     if st.session_state.get("model_name") == "K-Means Clustering":
@@ -900,7 +885,7 @@ with tab3:
             st.stop()
 
         # === Plot PCA projection ===
-        palette = get_color_palette("tab10", len(np.unique(labels)))
+        palette = get_color_palette()
         fig = plot_pca_projection(X_pca, labels, label_names,
                                 f"PCA Projection Colored by {color_mode}", palette)
         st.pyplot(fig)
