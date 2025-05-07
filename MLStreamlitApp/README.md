@@ -1,5 +1,5 @@
 # 🤖 DataFlex  
-*An Interactive Machine Learning App*
+*An Interactive App for Supervised Machine Learning*
 
 ## Table of Contents
 - [Project Overview](#project-overview)
