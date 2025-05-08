@@ -69,17 +69,17 @@ Each row represents a single medal awarded during the Beijing 2008 games, with f
 - Analyze distribution and frequency of medals
 
 ## Visualization
-The notebook includes intuitive charts for exploring medal distributions: 
-**Medals by Event Type** 
+The notebook includes intuitive charts for exploring medal distributions:<br>
+**Medals by Event Type**<br>
 Bar chart showing the number of medals awarded by event:
 ![Image](https://github.com/user-attachments/assets/fbff3223-bae7-4cc8-a051-7a1cca853c03)
-**Medals by Gender and Event** 
+**Medals by Gender and Event**<br>
 Heatmap displaying the gender breakdown of medals by event:
 ![Image](https://github.com/user-attachments/assets/ecf345a5-85c3-4f7d-a28b-153b804365ed)
 
 ---
 
 ## References
-- [**Tidy Data**](https://vita.had.co.nz/papers/tidy-data.pdf) by Hadley Wickham
-- [**Pandas Cheat Sheet**](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
-- [**Dataset**](https://edjnet.github.io/OlympicsGoNUTS/2008/)
+- [Tidy Data](https://vita.had.co.nz/papers/tidy-data.pdf) - by Hadley Wickham
+- [Pandas Cheat Sheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
+- [Olympics Dataset](https://edjnet.github.io/OlympicsGoNUTS/2008/) - via EDJNet
