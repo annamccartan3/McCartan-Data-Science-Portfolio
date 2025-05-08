@@ -20,7 +20,7 @@ Each project includes a link to its repository, where you’ll find code, docume
 - :dog: [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app)<br> 
   A **Streamlit** app that helps users explore **dog breed characteristics**, offering a user-friendly interface for filtering and searching breeds based on key traits. This project deepened my exposure to interactive data presentation, building a foundation with User Experience and accessible app development.
 - :medal_sports: [**Gold Standard**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project)<br>
-  A Jupyter Notebook project that tidies and visualizes data from the **2008 Summer Olympics** in Beijing, applying [tidy data](https://vita.had.co.nz/papers/tidy-data.pdf) principles for effective analysis. This project underscores the importance of clean data in facilitating aggregation, visualization, and statistical modeling.
+  A **Jupyter Notebook** project that tidies and visualizes data from the **2008 Summer Olympics** in Beijing, applying [tidy data](https://vita.had.co.nz/papers/tidy-data.pdf) principles for effective analysis. This project underscores the importance of clean data in facilitating aggregation, visualization, and statistical modeling.
 ### Coursework
 - [Handling Missing Data](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/handling_missing_data)<br>
   Techniques for detecting and addressing missing values.
