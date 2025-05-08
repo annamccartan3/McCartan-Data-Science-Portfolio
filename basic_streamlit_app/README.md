@@ -64,7 +64,7 @@ DogFinder utilizes a cleaned dataset from [Kaggle](https://www.kaggle.com/datase
 ## App Features
 DogFinder allows you to:
 - **Filter** by breed group, height, and weight
-- **Visualize breed differences** in traits like friendliness and trainability
+- **Visualize** differences in traits like friendliness and trainability
 - **Display** filtered breed lists in a comparative table view
 
 Simple dropdowns and sliders make it easy to explore subsets of the data.
