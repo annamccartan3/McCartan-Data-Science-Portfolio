@@ -73,11 +73,9 @@ The notebook includes intuitive charts for exploring medal distributions:<br><br
 **Medals by Event Type**<br>
 Bar chart showing the number of medals awarded by event:
 <img src="images/MedalsByEventType.png" height="300">
-![Image](https://github.com/user-attachments/assets/fbff3223-bae7-4cc8-a051-7a1cca853c03)
 **Medals by Gender and Event**<br>
 Heatmap displaying the gender breakdown of medals by event:
-<img src="images/MedalsByGenderEvent.png" height="300">
-![Image](https://github.com/user-attachments/assets/ecf345a5-85c3-4f7d-a28b-153b804365ed)
+<img src="images/MedalsByEventGender.png" height="300">
 
 ---
 
