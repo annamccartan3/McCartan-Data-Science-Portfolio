@@ -71,11 +71,11 @@ Each row represents a single medal awarded during the Beijing 2008 games, with f
 ## Visualization
 The notebook includes intuitive charts for exploring medal distributions:<br><br>
 **Medals by Event Type**<br>
-Bar chart showing the number of medals awarded by event:
-<img src="images/MedalsByEventType.png" height="300">
+Bar chart showing the number of medals awarded by event:<br>
+<img src="images/MedalsByEventType.png" height="500">
 **Medals by Gender and Event**<br>
-Heatmap displaying the gender breakdown of medals by event:
-<img src="images/MedalsByEventGender.png" height="300">
+Heatmap displaying the gender breakdown of medals by event:<br>
+<img src="images/MedalsByEventGender.png" height="500">
 
 ---
 
