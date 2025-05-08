@@ -42,9 +42,6 @@ pip install -r requirements.txt
 streamlit run main.py
 ```
 
-Once you’re in the app, follow these steps to begin:
-1. [insert]
-
 ---
 
 ## Dataset
@@ -80,6 +77,6 @@ The app generates a dynamic bar chart to visualize the selected trait across mat
 
 ## References  
 
-- [Dataset](https://www.kaggle.com/datasets/yonkotoshiro/dogs-breeds) – via Kaggle
+- [Dog Breeds dataset](https://www.kaggle.com/datasets/yonkotoshiro/dogs-breeds) – via Kaggle
 - Developed with [Streamlit](https://streamlit.io/) and [Pandas](https://pandas.pydata.org/)
 
