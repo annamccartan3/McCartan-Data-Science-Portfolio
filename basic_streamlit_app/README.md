@@ -69,8 +69,9 @@ Simple dropdowns and sliders make it easy to explore subsets of the data.
 ---
 
 ## Visualization  
-The app generates a dynamic bar chart to visualize the selected trait across matching breeds.<br>
-**Example Chart**<br><br>
+The app generates a dynamic bar chart to visualize the selected trait across matching breeds.<br><br>
+
+**Example Chart**<br>
 <img src="images/ExamplePlot.png" height="500">
 
 ---
