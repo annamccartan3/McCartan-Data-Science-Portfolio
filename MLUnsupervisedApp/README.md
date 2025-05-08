@@ -15,7 +15,7 @@
 ## Project Overview  
 **DataQuest** is an interactive **Streamlit** app that allows users to explore unsupervised machine learning techniques like clustering and dimensionality reduction.
 
-### What is supervised machine learning?  
+### What is unsupervised machine learning?  
 Unsupervised learning refers to techniques that discover patterns in data without using labeled outcomes. As described in *Grokking Machine Learning* by **Luis G. Serrano**, these methods help reveal structure, groupings, and key relationships in datasets. Examples include:
 - Dimensionality Reduction – Simplifying high-dimensional data while preserving key variance (e.g., PCA)
 - Clustering – Grouping data points based on similarity (e.g., K-Means, Agglomerative)
@@ -63,7 +63,7 @@ Once you’re in the app, follow these steps to begin your machine learning work
 - **[Countries](https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data)** – Explore demographic differences in health and economic indicators across the globe.
 
 #### DataQuest includes built-in tools for:
-- **Dropping or Encoding incompatible data**: Automatically detect and encode categorical columns, or drop non-numeric/identifier columns that could interfere with model training.
+- **Automatic Data Cleaning**: Detects and encodes categorical columns, or drops non-numeric/identifier columns that could interfere with model training.
 - **Handling missing values**: If missing data is found, choose to drop affected rows or impute missing values with the mean.
 - **Running Reproducible Tests**: Set a random state for reproducibility in model evaluation and visualization over time.
 
@@ -97,17 +97,17 @@ These metrics are displayed after training to help you compare model effectivene
 
 ## Visualization  
 Visual tools help bring your model results to life:
-- **Explained Variance Plots** – Description
+- **Explained Variance Plots** – Show how much information is retained with each principal component.
 <img src="images/ExplainedVariance1.png" height="300">
 <img src="images/ExplainedVariance2.png" height="300">
 
-- **K-Means Cluster Optimization** – Description
+- **K-Means Cluster Optimization** – Visualize WCSS and silhouette scores for different cluster numbers.
 <img src="images/KMeansPlots.png" height="300">
 
-- **Dendrogram** – Description
+- **Dendrogram** – Display the hierarchical merging of clusters.
 <img src="images/Dendrogram.png" height="300">
 
-- **PCA Projections** – Description
+- **PCA Projections** – 2D and biplot visualizations of reduced data.
 <img src="images/PCAProjection.png" height="300">
 <img src="images/PCAProjectionBiplot.png" height="300">
 
