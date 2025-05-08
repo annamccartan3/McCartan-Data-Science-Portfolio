@@ -42,9 +42,6 @@ pip install -r requirements.txt
 streamlit run main.py
 ```
 
-Once you’re in the app, follow these steps to begin:
-1. [insert]
-
 ---
 
 ## Dataset
