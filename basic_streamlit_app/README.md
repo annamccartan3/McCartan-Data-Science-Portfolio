@@ -20,9 +20,6 @@ Whether you're researching the best dog breed for apartment living or simply cur
 
 ## Getting Started
 
-### Deployed App
-Access the live version here: [**Deployed App on Streamlit Cloud**](https://dogfinder.streamlit.app/)
-
 ### Run the App Locally
 
 #### Clone & Navigate to the Repository
