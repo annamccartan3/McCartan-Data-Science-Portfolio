@@ -4,6 +4,16 @@ Welcome to my **Data Science Portfolio**, a collection of projects from my Intro
 
 Each project includes a link to its repository, where you’ll find code, documentation, and instructions to view or replicate the analysis.
 
+## At a Glance
+
+| Project | Type | Description |
+|--------|------|-------------|
+| [**DogFinder** 🐶](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app) | App | Streamlit app to explore dog breed characteristics with filtering and visualization. |
+| [**Gold Standard 🏅**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project) | Notebook | Tidy and visualize data from the 2008 Olympics using data wrangling principles. |
+| [**DataFlex 🤖**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp) | App | Supervised ML app for model selection, training, and evaluation with interactive plots. |
+| [**DataQuest 💡**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLUnsupervisedApp) | App | Unsupervised ML app using clustering and PCA to reveal data structure. |
+
+
 ## Data Management
 **Organizing, cleaning, and transforming data for analysis using [pandas](https://pandas.pydata.org/) and [NumPy](https://numpy.org/)**  
 ### Projects
