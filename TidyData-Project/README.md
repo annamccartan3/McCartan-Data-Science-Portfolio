@@ -2,8 +2,7 @@
 *A Data Tidying and Visualization Project*  
 
 ## Table of Contents  
-- [Project Overview](#project-overview)  
-- [What is Tidy Data?](#what-is-tidy-data)  
+- [Project Overview](#project-overview)   
 - [Getting Started](#getting-started)  
 - [Dataset](#dataset)  
 - [Features](#features)  
@@ -15,9 +14,7 @@
 ## Project Overview  
 **Gold Standard** is a **Jupyter Notebook** project focused on tidying and analyzing data from the **2008 Summer Olympics in Beijing**. Using **pandas** and **seaborn**, the project demonstrates how to clean raw CSV data and produce compelling visual summaries based on tidy data principles.
 
----
-
-## What is Tidy Data?  
+### What is Tidy Data? 
 Tidy data, as defined by [Hadley Wickham](https://vita.had.co.nz/papers/tidy-data.pdf), follows three core rules:
 - Each **variable** forms a column  
 - Each **observation** forms a row  
