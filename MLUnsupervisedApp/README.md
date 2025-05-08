@@ -50,7 +50,7 @@ streamlit run main.py
 
 Once you’re in the app, follow these steps to begin your machine learning workflow:
 1. Upload your dataset or choose a demo dataset.
-2. Select features and a target variable for prediction.
+2. Select features to explore and reduce dimensions or cluster patterns.
 3. Train a model, adjust hyperparameters, and evaluate performance.
 4. Explore visualizations to understand how your model is performing.
 
