@@ -60,7 +60,7 @@ Once you’re in the app, follow these steps to begin your machine learning work
 *Choose from two built-in demo datasets or upload your own `.csv` file.*<br>
 #### Demo Datasets:
 - **[Breast Cancer](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)** – Predict tumor malignancy from medical imaging features.
-- **[Countries]([https://en.wikipedia.org/wiki/Passengers_of_the_Titanic](https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data))** – Explore demographic differences in health and economic indicators across the globe.
+- **[Countries](https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data)** – Explore demographic differences in health and economic indicators across the globe.
 
 #### DataQuest includes built-in tools for:
 - **Dropping or Encoding incompatible data**: Automatically detect and encode categorical columns, or drop non-numeric/identifier columns that could interfere with model training.
