@@ -19,6 +19,8 @@ from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from scipy.cluster.hierarchy import linkage, dendrogram
 
+# Add PCA check for > 10 classes
+
 # ==== HELPER FUNCTIONS ====
 def get_color_palette(name="Set2", n=10):
     """
@@ -93,6 +95,10 @@ def handle_preloaded_data(name):
     """
     Handles automatic preprocessing steps for known demo datasets
     """
+    #Ensure Clean State
+    for key in ['y', 'target_names', 'pca_results', 'visualization_data']:
+        st.session_state.pop(key, None)
+
     if name == "Breast Cancer":
         data = load_breast_cancer(as_frame=True)
         df = data.frame
@@ -104,9 +110,13 @@ def handle_preloaded_data(name):
         })
     elif name == "Countries":
         df = pd.read_csv("data/Country-data.csv")
+        default_target = "country" if "country" in df.columns else df.columns[0]
+        
         st.session_state.update({
             'df_raw': df.copy(),
-            'X': df.drop(columns="country")
+            'X': df.drop(columns=default_target),
+            'y': df[default_target],
+            'target_names': df[default_target].unique().tolist()
         })
 
     st.session_state.update({
@@ -543,7 +553,6 @@ with tab2:
             # Streamlit layout
             st.subheader("Principal Component Analysis")
             st.markdown("PCA reduces data dimensionality while preserving the most significant features (variance). Use the plots below to determine how many components to keep.")
-            st.caption("Preview of explained variance (PCA not yet trained)")
             
             n_samples, n_features = X_scaled.shape
             min_components = min(20, n_features)
@@ -828,10 +837,20 @@ with tab3:
         label_names = st.session_state.get("target_names", [str(i) for i in np.unique(y)])
 
         # Toggle biplot
-        show_loadings = st.checkbox("Show loadings (biplot)", value=False)
-        scaling_factor = st.slider("Loading arrow scale", 0.1, 2.0, 1.0)
+        show_loadings = st.checkbox(
+            "Show loadings (biplot)",
+            value=False,
+            help="Toggle to display PCA loadings as arrows on the biplot."
+        )
 
         if show_loadings:
+            scaling_factor = st.slider(
+            "Loading arrow scale",
+            min_value=1,
+            max_value=100,
+            value=50,
+            help="Adjusts the length of the loading arrows in the biplot to improve visibility."
+        )
             fig = plot_pca_projection_with_biplot(X_pca, labels, label_names, selected_features, pca,
                                                 show_loadings=True, scaling_factor=scaling_factor)
         else:
