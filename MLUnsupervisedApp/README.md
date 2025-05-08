@@ -57,7 +57,7 @@ Once you’re in the app, follow these steps to begin your machine learning work
 ---
 
 ## Datasets  
-*Choose from three built-in demo datasets or upload your own `.csv` file.*<br>
+*Choose from two built-in demo datasets or upload your own `.csv` file.*<br>
 #### Demo Datasets:
 - **[Breast Cancer](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)** – Predict tumor malignancy from medical imaging features.
 - **[Countries]([https://en.wikipedia.org/wiki/Passengers_of_the_Titanic](https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data))** – Explore demographic differences in health and economic indicators across the globe.
@@ -83,14 +83,13 @@ Additional options include:
 
 ## Evaluation Metrics  
 To assess your model, DataQuest provides key metrics:
-- **Principal Component Analysis (PCA): Explained Variance**
-  - Explained Variance -
-  - Cumulative Explained Variance -
+- **Principal Component Analysis (PCA)**
+  - *Cumulative Explained Variance:* Measures how much of the dataset’s total variance is captured by the selected principal components. Used to assess dimensionality reduction effectiveness.
 - **K-Means Clustering: Explained Variance**
-  - WCSS
-  - Silhouette Score
+  - *Within-Cluster Sum of Squares (WCSS):* Indicates compactness; lower WCSS means points are closer to their cluster centroids.
+  - *Silhouette Score:* Ranges from -1 to 1; higher values mean better-defined clusters (points are closer to their own cluster than others).
 - **Hierarchical Clustering: Explained Variance**
-  - Silhouette Score
+  - *Silhouette Score:* Ranges from -1 to 1; higher values mean better-defined clusters (points are closer to their own cluster than others).
 
 These metrics are displayed after training to help you compare model effectiveness.
 
@@ -98,21 +97,19 @@ These metrics are displayed after training to help you compare model effectivene
 
 ## Visualization  
 Visual tools help bring your model results to life:
-- **Feature Importance Plot** – Identifies which features have the most influence in logistic regression
-<img src="images/FeatureImportance.png" height="300">
+- **Explained Variance Plots** – Description
+<img src="images/ExplainedVariance1.png" height="300">
+<img src="images/ExplainedVariance2.png" height="300">
 
-- **Decision Tree Graph** – Shows the structure and decisions of a tree-based model
-<img src="images/DecisionTree.png" height="300">
+- **K-Means Cluster Optimization** – Description
+<img src="images/KMeansPlots.png" height="300">
 
-- **KNN k-value Analysis** – Plots accuracy and F1-score for various values of *k* to help tune your model
-<img src="images/KNN.png" height="300">
+- **Dendrogram** – Description
+<img src="images/Dendrogram.png" height="300">
 
-- **Confusion Matrix** – Displays counts of correct (TP/TN, along diagonal) vs. incorrect (FP/FN) predictions by class
-<img src="images/CM.png" height="300">
-
-- **ROC Curve** – Shows how well your model can distinguish between positive and negative cases
-  - **Area Under the Curve (AUC)** - Measures how successful your model is at making this distinction
-<img src="images/ROC.png" height="300">
+- **PCA Projections** – Description
+<img src="images/PCAProjection.png" height="300">
+<img src="images/PCAProjectionBiplot.png" height="300">
 
 ---
 
@@ -122,6 +119,5 @@ Visual tools help bring your model results to life:
 - *Grokking Machine Learning* by Luis G. Serrano  
 
 ### Demo Datasets  
-- [Titanic Dataset](https://en.wikipedia.org/wiki/Passengers_of_the_Titanic) – via Seaborn  
-- [Iris Dataset](https://en.wikipedia.org/wiki/Iris_flower_data_set) – via Scikit-learn  
-- [Breast Cancer Dataset](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic) – via Scikit-learn 
+- [Breast Cancer Dataset](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic) – via Scikit-learn
+- [Countries Dataset](https://www.kaggle.com/datasets/rohan0301/unsupervised-learning-on-country-data) – via Kaggle
