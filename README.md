@@ -8,10 +8,10 @@ Each project includes a link to its repository, where you’ll find code, docume
 
 | Project | Type | Description | Deployment |
 |--------|------|-------------|-------------|
-| [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app) | App | Streamlit app to explore dog breed characteristics with filtering and visualization. | [Access on Streamlit](https://dogfinder.streamlit.app)  |
+| [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app) | App | Streamlit app to explore dog breed characteristics with filtering and visualization. | https://dogfinder.streamlit.app  |
 | [**Gold Standard**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project) | Notebook | Tidy and visualize data from the 2008 Olympics using data wrangling principles. | N/A |
-| [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp) | App | Supervised ML app for model selection, training, and evaluation with interactive plots. | [Access on Streamlit](https://dataflex.streamlit.app)  |
-| [**DataQuest**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLUnsupervisedApp) | App | Unsupervised ML app using clustering and PCA to reveal data structure. | [Access on Streamlit](https://dataquest.streamlit.app)  |
+| [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp) | App | Supervised ML app for model selection, training, and evaluation with interactive plots. | https://dataflex.streamlit.app  |
+| [**DataQuest**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLUnsupervisedApp) | App | Unsupervised ML app using clustering and PCA to reveal data structure. | https://dataquest.streamlit.app  |
 
 
 ## Data Management
