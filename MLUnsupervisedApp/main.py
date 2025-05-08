@@ -218,17 +218,34 @@ def drop_and_encode_features(df, target_col):
 
 def handle_missing_values(df, missing_option):
     """
-    Drop or Impute for rows with missing values
+    Handle missing values by either dropping rows or imputing numeric columns with the mean.
+    Also displays which columns contain missing values.
     """
+    df_fixed = df.copy()
+
+    # Identify columns with missing values
+    missing_cols = df_fixed.columns[df_fixed.isnull().any()]
+    if not missing_cols.empty:
+        st.sidebar.markdown("**Columns with missing values**")
+        for col in missing_cols:
+            st.sidebar.markdown(f"- {col}: {df_fixed[col].isnull().sum()} missing")
+    else:
+        st.sidebar.success("No missing values detected.")
+
+    # Apply missing value strategy
     if missing_option == "Drop rows":
-        df.dropna(inplace=True)
+        df_fixed.dropna(inplace=True)
         st.sidebar.success("Rows with missing values have been dropped.")
+    
     elif missing_option == "Impute mean":
-        numeric_cols = df.select_dtypes(include=["float", "int"]).columns
-        df = df.copy()
-        df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+        numeric_cols = df_fixed.select_dtypes(include=["float", "int"]).columns
+        df_fixed[numeric_cols] = df_fixed[numeric_cols].fillna(df_fixed[numeric_cols].mean())
         st.sidebar.success("Missing numeric values have been imputed with the column mean.")
-    return df
+    
+    else:
+        st.sidebar.warning("No missing value handling selected. Returning original data.")
+    
+    return df_fixed
 
 def fit_pca(X_scaled, y, selected_features=None, n_components=2):
     """
@@ -514,6 +531,13 @@ if 'df' in st.session_state:
     df = st.session_state['df']
     target_col = st.session_state['target_col']
 
+    # Handle Missing Values
+    missing_option = st.session_state['missing_option']
+    df_fixed = handle_missing_values(df, missing_option)
+    st.session_state['df_fixed'] = df_fixed
+    st.session_state['y'] = df_fixed[target_col]
+    df = st.session_state['df_fixed']
+
     st.sidebar.subheader("Select Feature Variables")
     feature_candidates = [col for col in df.columns if col != target_col]
     default_features = feature_candidates
@@ -526,7 +550,7 @@ if 'df' in st.session_state:
 
     st.session_state['selected_features'] = selected_features
     st.session_state['X'] = df[selected_features]
-    st.session_state['y'] = df[target_col]
+
     st.session_state['kept_cols'] = selected_features + [target_col]
 
     st.sidebar.subheader("Set Training Parameters")
@@ -556,10 +580,6 @@ with tab1:
     if 'df' in st.session_state:
         df = st.session_state['df']
         data_source = st.session_state['data_source']
-        missing_option = st.session_state['missing_option']
-
-        # Handle missing values
-        df = handle_missing_values(df, missing_option)
 
         # Display Dataframe
         st.write("Preview of processed dataset:")
