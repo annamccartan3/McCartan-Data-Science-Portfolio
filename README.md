@@ -6,19 +6,19 @@ Each project includes a link to its repository, where you’ll find code, docume
 
 ## At a Glance
 
-| Project | Type | Description |
-|--------|------|-------------|
-| [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app) | App | Streamlit app to explore dog breed characteristics with filtering and visualization. |
-| [**Gold Standard**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project) | Notebook | Tidy and visualize data from the 2008 Olympics using data wrangling principles. |
-| [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp) | App | Supervised ML app for model selection, training, and evaluation with interactive plots. |
-| [**DataQuest**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLUnsupervisedApp) | App | Unsupervised ML app using clustering and PCA to reveal data structure. |
+| Project | Type | Description | Deployment |
+|--------|------|-------------|-------------|
+| [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app) | App | Streamlit app to explore dog breed characteristics with filtering and visualization. | [Access on Streamlit](https://dogfinder.streamlit.app)  |
+| [**Gold Standard**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project) | Notebook | Tidy and visualize data from the 2008 Olympics using data wrangling principles. | N/A |
+| [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp) | App | Supervised ML app for model selection, training, and evaluation with interactive plots. | [Access on Streamlit](https://dataflex.streamlit.app)  |
+| [**DataQuest**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLUnsupervisedApp) | App | Unsupervised ML app using clustering and PCA to reveal data structure. | [Access on Streamlit](https://dataquest.streamlit.app)  |
 
 
 ## Data Management
 **Organizing, cleaning, and transforming data for analysis using [pandas](https://pandas.pydata.org/) and [NumPy](https://numpy.org/)**  
 ### Projects
 - :dog: [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app)<br> 
-  A **Streamlit** app that helps users explore **dog breed characteristics**, offering a user-friendly interface for filtering and searching breeds based on key traits. This project deepened my exposure to interactive data presentation, building a foundation with User Experience and accessible app development. [Launch DogFinder App](https://dogfinder.streamlit.app) 
+  A **Streamlit** app that helps users explore **dog breed characteristics**, offering a user-friendly interface for filtering and searching breeds based on key traits. This project deepened my exposure to interactive data presentation, building a foundation with User Experience and accessible app development. [Launch DogFinder](https://dogfinder.streamlit.app) 
 - :medal_sports: [**Gold Standard**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project)<br>
   A **Jupyter Notebook** project that tidies and visualizes data from the **2008 Summer Olympics** in Beijing, applying [tidy data](https://vita.had.co.nz/papers/tidy-data.pdf) principles for effective analysis. This project underscores the importance of clean data in facilitating aggregation, visualization, and statistical modeling.
 ### Coursework
@@ -33,9 +33,9 @@ Each project includes a link to its repository, where you’ll find code, docume
 **Leveraging statistical models in [scikit-learn](https://scikit-learn.org/stable/) to extract insights, analyze patterns, and make data-driven predictions.**
 ### Projects
 - :robot: [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp)<br> 
-A Streamlit app for exploring supervised machine learning through model selection, tuning, and evaluation. Users can upload datasets, preprocess features, and train models such as logistic regression, decision trees, and k-nearest neighbors, with real-time performance metrics and visualizations to guide interpretation. This project builds on prior work in classification pipelines and model evaluation, extending it into an interactive, user-centered tool that emphasizes algorithmic transparency, hands-on experimentation, and deployment-ready workflows. [Launch DataFlex App](https://dataflex.streamlit.app) 
+A Streamlit app for exploring supervised machine learning through model selection, tuning, and evaluation. Users can upload datasets, preprocess features, and train models such as logistic regression, decision trees, and k-nearest neighbors, with real-time performance metrics and visualizations to guide interpretation. This project builds on prior work in classification pipelines and model evaluation, extending it into an interactive, user-centered tool that emphasizes algorithmic transparency, hands-on experimentation, and deployment-ready workflows. [Launch DataFlex](https://dataflex.streamlit.app) 
 - :bulb: [**DataQuest**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLUnsupervisedApp)<br> 
-A Streamlit app for unsupervised machine learning that enables users to uncover hidden structures in data through clustering (K-Means, hierarchical) and dimensionality reduction (PCA). Interactive controls and dynamic plots support real-time exploration of grouping behavior, variance, and pattern discovery. As a complement to DataFlex, this project expands the portfolio into exploratory, label-free learning, highlighting the importance of structural insight and feature relationships in complex datasets. [Launch DataQuest App](https://dataquest.streamlit.app) 
+A Streamlit app for unsupervised machine learning that enables users to uncover hidden structures in data through clustering (K-Means, hierarchical) and dimensionality reduction (PCA). Interactive controls and dynamic plots support real-time exploration of grouping behavior, variance, and pattern discovery. As a complement to DataFlex, this project expands the portfolio into exploratory, label-free learning, highlighting the importance of structural insight and feature relationships in complex datasets. [Launch DataQuest](https://dataquest.streamlit.app) 
 
 ### Learning Modules
 #### Supervised Machine Learning
