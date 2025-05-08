@@ -7,6 +7,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.colors import ListedColormap
 import seaborn as sns
 
 from sklearn.datasets import load_breast_cancer
@@ -18,8 +19,6 @@ from sklearn.cluster import AgglomerativeClustering
 
 from sklearn.metrics import silhouette_score
 from scipy.cluster.hierarchy import linkage, dendrogram
-
-# Add PCA check for > 10 classes
 
 # ==== HELPER FUNCTIONS ====
 def get_color_palette(name="Set2", n=10):
@@ -63,6 +62,10 @@ def handle_uploaded_data(uploaded_file):
     """
     Preprocesses custom CSV files for use with unsupervised ML models.
     """
+    #Ensure Clean State
+    for key in ['y', 'target_names', 'pca_results', 'visualization_data', 'cluster_labels', 'X_pca']:
+        st.session_state.pop(key, None)
+
     df = load_data(uploaded_file)
     st.session_state['df_raw'] = df.copy()
 
@@ -96,7 +99,7 @@ def handle_preloaded_data(name):
     Handles automatic preprocessing steps for known demo datasets
     """
     #Ensure Clean State
-    for key in ['y', 'target_names', 'pca_results', 'visualization_data']:
+    for key in ['y', 'target_names', 'pca_results', 'visualization_data', 'cluster_labels', 'X_pca']:
         st.session_state.pop(key, None)
 
     if name == "Breast Cancer":
@@ -269,7 +272,7 @@ def fit_pca(X_scaled, y, selected_features=None, n_components=2):
     return X_pca, pca, y_subset
 
 def get_pca_projection(X_scaled, y, selected_features=None, n_components=2):
-    sf_hash = hash(tuple(selected_features)) if selected_features is not None else 'all'
+    sf_hash = hash(tuple(selected_features)) if selected_features else "all_features"
     key = f"pca_{n_components}_{sf_hash}"
     
     if key not in st.session_state:
@@ -288,7 +291,7 @@ def plot_pca_projection(X_pca, y, target_names, title="PCA Projection", palette=
     # Basic input checks
     if X_pca is None or y is None or len(X_pca) != len(y):
         st.error("Invalid inputs for PCA projection plot.")
-        return fig
+        return None
 
     # Ensure labels are numeric indices
     le = LabelEncoder()
@@ -309,9 +312,18 @@ def plot_pca_projection(X_pca, y, target_names, title="PCA Projection", palette=
 
     ax.set_xlabel("Principal Component 1")
     ax.set_ylabel("Principal Component 2")
-    ax.set_title(title)
-    ax.legend(title="Classes")
+    ax.set_title(title, fontsize=12)
+    ax.legend()
     ax.grid(True)
+
+    # Avoid Plot Overcrowding
+    handles, leg_labels = ax.get_legend_handles_labels()
+    num_legend_items = len(leg_labels)
+    max_num_legend_items = 10
+    if num_legend_items > max_num_legend_items:
+        st.warning(f"PCA is limited to {max_num_legend_items} different groups. Your data has {num_legend_items}. Try a different plot or adjust parameters to avoid overcrowding.")
+        return
+
     return fig
 
 def plot_pca_projection_with_biplot(X_pca, y, target_names, feature_names, model, show_loadings=False, scaling_factor=50):
@@ -319,17 +331,22 @@ def plot_pca_projection_with_biplot(X_pca, y, target_names, feature_names, model
     Plots a 2D PCA projection with optional feature vectors (biplot).
     """
     unique_classes = np.unique(y)
-    num_classes = len(unique_classes)
     palette = get_color_palette()
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    # Avoid Plot Overcrowding
+    max_unique_classes = 10
+    if len(unique_classes) > max_unique_classes:
+        st.warning(f"PCA is limited to {max_unique_classes} different groups. Your data has {len(unique_classes)}. Try a different plot or adjust parameters to avoid overcrowding.")
+        return
+
+    fig, ax = plt.subplots()
 
     # Scatter plot
     for color, class_val, label in zip(palette, unique_classes, target_names):
         ax.scatter(
             X_pca[y == class_val, 0], X_pca[y == class_val, 1],
             color=color, alpha=0.7, label=label,
-            edgecolor='black', s=60
+            s=60
         )
 
     # Biplot arrows
@@ -345,8 +362,8 @@ def plot_pca_projection_with_biplot(X_pca, y, target_names, feature_names, model
 
     ax.set_xlabel("Principal Component 1")
     ax.set_ylabel("Principal Component 2")
-    ax.set_title("2D Projection of Dataset")
     ax.legend(loc="best")
+    ax.set_title("PCA Projection with Biplot", fontsize=12)
     ax.grid(True)
     ax.axis('equal')
 
@@ -360,7 +377,7 @@ def plot_pca_variance_explained(pca, color1="#66c2a5", color2="#fc8d62"):
     cumulative = np.cumsum(explained)
     components = np.arange(1, len(explained) + 1)
 
-    fig, ax1 = plt.subplots(figsize=(8, 6))
+    fig, ax1 = plt.subplots()
     ax1.bar(components, explained, alpha=0.8, label='Individual Variance', color=color1)
     ax1.set_xlabel('Principal Component')
     ax1.set_ylabel('Individual Variance Explained (%)')
@@ -410,26 +427,58 @@ def compute_clustering_metrics(X_scaled, method="kmeans", random_state=None, lin
 
     return ks, wcss_list, silhouette_scores
 
-def plot_hierarchical_clustering(df, target_names=None):
+def plot_pca_hierarchical_clustering(X_scaled, cluster_labels, title="Hierarchical Clustering (PCA Projection)", max_clusters=10):
     """
-    Plots PCA projection of Agglomerative clusters.
-    """
-    X_scaled = st.session_state.get("X_scaled")
-    y = st.session_state.get("y")
-    selected_features = st.session_state.get("selected_features", [])
-    
-    # Get PCA projection (uses smart cache)
-    X_pca, pca, _ = get_pca_projection(X_scaled, y, selected_features, 2)
+    Streamlit-compatible 2D PCA plot for Hierarchical Clustering.
 
-    if X_pca is None:
-        st.error("PCA projection could not be computed.")
+    Parameters:
+    - X_scaled: Scaled feature matrix (NumPy array or DataFrame)
+    - cluster_labels: Array of Agglomerative clustering labels
+    - title: Plot title
+    - max_clusters: Maximum number of clusters to display (default: 10)
+    """
+    if X_scaled is None or cluster_labels is None:
+        st.error("Missing data or clustering labels.")
         return
 
-    labels = df["Cluster"]
-    label_names = [f"Cluster {i}" for i in sorted(df["Cluster"].unique())]
+    # Count unique clusters
+    unique_clusters = np.unique(cluster_labels)
+    num_clusters = len(unique_clusters)
 
-    palette = get_color_palette()
-    fig = plot_pca_projection(X_pca, labels, label_names, "Hierarchical Clustering (PCA Projection)", palette)
+    # Compute 2D PCA projection
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(X_scaled)
+
+    # Plotting
+    
+    # Define color palette
+    palette = get_color_palette()  # returns list of hex colors
+    cmap = ListedColormap(palette[:num_clusters])
+    
+    fig, ax = plt.subplots()
+
+    scatter = ax.scatter(
+        X_pca[:, 0], X_pca[:, 1],
+        c=cluster_labels,
+        s=60,
+        alpha=0.7,
+        cmap=cmap
+    )
+    ax.set_xlabel("Principal Component 1")
+    ax.set_ylabel("Principal Component 2")
+    ax.set_title(title)
+    legend = ax.legend(*scatter.legend_elements(), title="Clusters")
+    ax.add_artist(legend)
+    ax.grid(True)
+
+    # Avoid Plot Overcrowding
+    handles, leg_labels = ax.get_legend_handles_labels()
+    num_legend_items = len(leg_labels)
+    max_num_legend_items = 10
+    if num_legend_items > max_num_legend_items:
+        st.warning(f"PCA is limited to {max_num_legend_items} different groups. Your data has {num_legend_items}. Try a different plot or adjust parameters to avoid overcrowding.")
+        return
+
     st.pyplot(fig)
 
 st.set_page_config(page_title="DataQuest", layout="wide") # Establish layout
@@ -510,8 +559,7 @@ with tab1:
         missing_option = st.session_state['missing_option']
 
         # Handle missing values
-        if missing_option:
-            df = handle_missing_values(df, missing_option)
+        df = handle_missing_values(df, missing_option)
 
         # Display Dataframe
         st.write("Preview of processed dataset:")
@@ -565,7 +613,7 @@ with tab2:
             # Bar Chart
             with col1:
                 fig1, ax1 = plt.subplots()
-                ax1.bar(range(1, len(explained_variance)+1), explained_variance)
+                ax1.bar(range(1, len(explained_variance)+1), explained_variance, color=get_color_palette()[0])
                 ax1.set_xlabel('Principal Component')
                 ax1.set_ylabel('Explained Variance Ratio')
                 ax1.set_title('Explained Variance by Component')
@@ -830,10 +878,9 @@ with tab3:
 
         X_pca, pca, _ = get_pca_projection(X_scaled, y, selected_features, n_components)
         if X_pca is None or pca is None:
-            st.error("Unable to compute PCA projection.")
+            st.error("Unable to compute PCA projection for visualization.")
             st.stop()
 
-        labels = y
         label_names = st.session_state.get("target_names", [str(i) for i in np.unique(y)])
 
         # Toggle biplot
@@ -851,12 +898,13 @@ with tab3:
             value=50,
             help="Adjusts the length of the loading arrows in the biplot to improve visibility."
         )
-            fig = plot_pca_projection_with_biplot(X_pca, labels, label_names, selected_features, pca,
+            fig = plot_pca_projection_with_biplot(X_pca, y, label_names, selected_features, pca,
                                                 show_loadings=True, scaling_factor=scaling_factor)
         else:
-            fig = plot_pca_projection(X_pca, labels, label_names, "2D PCA Projection")
+            fig = plot_pca_projection(X_pca, y, label_names)
     
-        st.pyplot(fig)
+        if fig:
+            st.pyplot(fig)
 
         # Also show variance explained
         st.subheader("Variance Explained by Principal Components")
@@ -906,8 +954,9 @@ with tab3:
         # === Plot PCA projection ===
         palette = get_color_palette()
         fig = plot_pca_projection(X_pca, labels, label_names,
-                                f"PCA Projection Colored by {color_mode}", palette)
-        st.pyplot(fig)
+                                f"K-Means Clustering (PCA Projection Colored by {color_mode})", palette)
+        if fig:
+            st.pyplot(fig)
         
     # ==== Hierarchical Clustering ====  
     if st.session_state.get("model_name") == "Hierarchical Clustering":
@@ -916,6 +965,6 @@ with tab3:
             cluster_labels = st.session_state["cluster_labels"]
 
             # Plot the hierarchical clustering result
-            plot_hierarchical_clustering(X_scaled, y, cluster_labels)
+            plot_pca_hierarchical_clustering(X_scaled, cluster_labels)
         else:
             st.warning("Cluster labels or scaled data not found. Please ensure clustering is performed first.")
