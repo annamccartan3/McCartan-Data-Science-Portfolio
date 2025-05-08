@@ -1,33 +1,47 @@
 # :medal_sports: Gold Standard  
 *A Data Tidying and Visualization Project*  
 
+## Table of Contents  
+- [Project Overview](#project-overview)  
+- [What is Tidy Data?](#what-is-tidy-data)  
+- [Getting Started](#getting-started)  
+- [Dataset](#dataset)  
+- [Features](#features)  
+- [Visualization](#visualization)  
+- [References](#references)  
+
+---
+
 ## Project Overview  
-**Gold Standard** is a Jupyter Notebook designed for cleaning and visualizing data from the **2008 Summer Olympics** in Beijing. The project follows [**tidy data**](https://vita.had.co.nz/papers/tidy-data.pdf) principles to structure data effectively, making it easier to analyze and visualize.  
+**Gold Standard** is a **Jupyter Notebook** project focused on tidying and analyzing data from the **2008 Summer Olympics in Beijing**. Using **pandas** and **seaborn**, the project demonstrates how to clean raw CSV data and produce compelling visual summaries based on tidy data principles.
 
-### What is Tidy Data?  
-Tidy data principles, as outlined by **Hadley Wickham**, emphasize organizing data so that:  
-- Each variable has its own column  
-- Each observation has its own row  
-- Each type of observational unit is stored in a separate table  
+---
 
-By applying these principles, this project transforms messy Olympic data into a structured format, enabling more efficient analysis.  
+## What is Tidy Data?  
+Tidy data, as defined by [Hadley Wickham](https://vita.had.co.nz/papers/tidy-data.pdf), follows three core rules:
+- Each **variable** forms a column  
+- Each **observation** forms a row  
+- Each **type of observational unit** forms a table  
+
+Structuring data this way enables more consistent, readable, and reusable analysis — particularly when visualizing or modeling with Python tools like pandas and seaborn.
 
 ---
 
 ## Getting Started
 
-### Install Dependencies  
-Install & import the necessary libraries with the following commands:
+### Installation 
+Install the required Python libraries:
 ```bash
 pip install pandas seaborn matplotlib
 ```
+Then import them in your notebook:
 ```python
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 ```
 
-### Download the Data  
+### Download Project Files 
 - Download olympics08.csv and place it in the `data` folder within your project directory.  
 - Download the TidyData.ipynb Notebook file.  
 
@@ -40,26 +54,30 @@ import matplotlib.pyplot as plt
 
 ---
 
-## The Olympics Dataset  
-The dataset used in this project is adapted from [this source](https://edjnet.github.io/OlympicsGoNUTS/2008/), which contains **1,875** records of Olympic medalists from the **2008 Summer Olympics**, covering **75 different events** across multiple sports.  
+## Dataset  
+The **Olympics** dataset used in this project is adapted from [EDJNet’s 2008 Olympics data](https://edjnet.github.io/OlympicsGoNUTS/2008/), which contains **1,875** records of Olympic medalists from the **2008 Summer Olympics**, covering **75 different events** across multiple sports.  
+
+Each row represents a single medal awarded during the Beijing 2008 games, with fields including event type, gender, and country.
 
 ---
 
-## Features & Functionality  
+## Features
 
-**Transform Untidy Data**  
-- Import the raw dataset and export the cleaned version as **olympics08_cleaned.csv**   
+**Data Tidying**  
+- Convert the untidy raw data into a clean format
+- Export cleaned dataset as `olympics08_cleaned.csv`
 
-**Aggregation & Analysis**  
-- Group and analyze data by **event, gender, and medal type**
+**Aggregation**  
+- Group by **event**, **gender**, and **medal type**
+- Analyze distribution and frequency of medals
 
-**Data Visualization**  
-- Generate intuitive charts to explore medal distributions 
-
-### Example Output  
-**Bar Graph:** This graph shows the number of medals awarded for each event type.
+## Visualization
+The notebook includes intuitive charts for exploring medal distributions: 
+**Medals by Event Type** 
+Bar chart showing the number of medals awarded by event:
 ![Image](https://github.com/user-attachments/assets/fbff3223-bae7-4cc8-a051-7a1cca853c03)
-**Heatmap:** This heatmap displays the distribution of medals by event and gender.
+**Medals by Gender and Event** 
+Heatmap displaying the gender breakdown of medals by event:
 ![Image](https://github.com/user-attachments/assets/ecf345a5-85c3-4f7d-a28b-153b804365ed)
 
 ---
@@ -67,3 +85,4 @@ The dataset used in this project is adapted from [this source](https://edjnet.gi
 ## References
 - [**Tidy Data**](https://vita.had.co.nz/papers/tidy-data.pdf) by Hadley Wickham
 - [**Pandas Cheat Sheet**](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
+- [**Dataset**](https://edjnet.github.io/OlympicsGoNUTS/2008/)
