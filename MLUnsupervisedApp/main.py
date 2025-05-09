@@ -90,7 +90,6 @@ def handle_uploaded_data(uploaded_file):
         )
     else:
         missing_option = None
-        st.sidebar.success("No missing values detected.")
 
     st.session_state['missing_option'] = missing_option
 
