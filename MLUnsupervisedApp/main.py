@@ -111,7 +111,8 @@ def handle_preloaded_data(name):
             'target_names': data.target_names.tolist()
         })
     elif name == "Countries":
-        df = pd.read_csv("data/Country-data.csv")
+        #df = pd.read_csv("data/Country-data.csv")
+        df = pd.read_csv("MLUnsupervisedApp/data/Country-data.csv")
         default_target = "country" if "country" in df.columns else df.columns[0]
         
         st.session_state.update({
