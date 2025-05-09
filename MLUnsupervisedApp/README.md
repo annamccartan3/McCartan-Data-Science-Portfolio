@@ -34,7 +34,7 @@ Access the live version here: [**Deployed App on Streamlit Cloud**](https://data
 #### Clone & Navigate to the Repository
 ```bash
 git clone https://github.com/annamccartan3/McCartan-Data-Science-Portfolio.git
-cd McCartan-Data-Science-Portfolio/MLUnsupervisedApp
+cd McCartan-Data-Science-Portfolio
 ```
 
 #### Install Dependencies  
