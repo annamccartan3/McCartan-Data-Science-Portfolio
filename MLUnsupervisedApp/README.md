@@ -40,7 +40,7 @@ cd McCartan-Data-Science-Portfolio
 #### Install Dependencies  
 All dependencies can be found in the requirements.txt file. Create and activate a virtual environment, then install the necessary libraries:
 ```bash
-pip install -r requirements.txt
+pip install -r MLUnsupervisedApp/requirements.txt
 ```
 
 #### Run the Streamlit App
