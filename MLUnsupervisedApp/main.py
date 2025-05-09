@@ -242,9 +242,6 @@ def handle_missing_values(df, missing_option):
         df_fixed[numeric_cols] = df_fixed[numeric_cols].fillna(df_fixed[numeric_cols].mean())
         st.sidebar.success("Missing numeric values have been imputed with the column mean.")
     
-    else:
-        st.sidebar.warning("No missing value handling selected. Returning original data.")
-    
     return df_fixed
 
 def fit_pca(X_scaled, y, selected_features=None, n_components=2):
