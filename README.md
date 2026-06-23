@@ -9,7 +9,7 @@ Each project includes a link to its repository, where you’ll find code, docume
 | Project | Type | Description | Deployment |
 |--------|------|-------------|-------------|
 | [**Vaginal Microbiome Database**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio) | DB | Custom, novel database of 2000+ vaginal samples, quality filtered and mined for potential biomarkers. | In Progress |
-| [**Leaderless Translation**](https://github.com/Champion-Lab/leaderlessTranslation) | Notebook | Quantify and visualize leaderless translation efficiency in bacteria with this flexible script. | N/A |
+| [**Leaderless Translation**](https://github.com/Champion-Lab/leaderlessTranslation) | Notebook | Quantify and visualize leaderless translation efficiency in bacteria with this flexible script. | Available on GitHub! |
 | [**DogFinder**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/basic_streamlit_app) | App | Streamlit app to explore dog breed characteristics with filtering and visualization. | N/A  |
 | [**Gold Standard**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/TidyData-Project) | Notebook | Tidy and visualize data from the 2008 Olympics using data wrangling principles. | N/A |
 | [**DataFlex**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/tree/main/MLStreamlitApp) | App | Supervised ML app for model selection, training, and evaluation with interactive plots. | https://dataflex.streamlit.app  |
