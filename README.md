@@ -1,6 +1,6 @@
-# :sunflower: Anna McCartan's Data Science Portfolio!
+# :sunflower: Anna McCartan's Portfolio!
 
-Welcome to my **Data Science Portfolio**, a collection of projects from my Introduction to Data Science course (Spring 2025). This repository highlights my work in **data management and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
+Welcome to my **portfolio**, a collection of publicly available projects from my research, internships, and courseworks. This repository highlights my work in **computational biology and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
 
 Each project includes a link to its repository, where you’ll find code, documentation, and instructions to view or replicate the analysis.
 
@@ -56,7 +56,7 @@ A Streamlit app for unsupervised machine learning that enables users to uncover 
 
 ---
 ### Next Steps
-I’m always expanding my skills. Stay tuned for more projects in **data visualization and statistical modeling**!  
+I’m always expanding my skills. Stay tuned for more projects in biological **data visualization and statistical programming**!  
 
 ### Connect with me
 Feel free to reach out through my [**GitHub**](https://github.com/annamccartan3) profile or [**LinkedIn**](https://www.linkedin.com/in/anna-mccartan/)!  
