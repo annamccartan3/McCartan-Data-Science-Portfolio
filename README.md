@@ -1,6 +1,6 @@
 # :sunflower: Anna McCartan's Portfolio!
 
-Welcome to my **portfolio**, a collection of publicly available projects from my research, internships, and courseworks. This repository highlights my work in **computational biology and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
+Welcome to my portfolio, a collection of publicly available projects from my research, internships, and coursework. This repository highlights my work in **computational biology and machine learning**, demonstrating my ability to clean, analyze, and visualize data, as well as build interactive applications.
 
 Each project includes a link to its repository, where you’ll find code, documentation, and instructions to view or replicate the analysis.
 
