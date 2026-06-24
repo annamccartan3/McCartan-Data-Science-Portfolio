@@ -18,7 +18,7 @@ Each project includes a link to its repository, where you’ll find code, docume
 ## Bioinformatics 
 **Integrating biological data with computational tools and packages.**
 ### Projects
-- :ledger: [**VMB DB**](https://github.com/annamccartan3/MCCARTAN-Data-Science-Portfolio/)<br> 
+- :ledger: **VMB DB**<br> 
 I'm building something new! My MSc Research project involves constructing a novel database of the vaginal microbiome by collecting, filtering, and examining 2000+ samples to look for relationships between host characteristics and VMB composition.
 - :microscope: [**Leaderless Translation**](https://github.com/Champion-Lab/leaderlessTranslation)<br> 
 This Jupyter Notebook facilitates rapid, flexible analysis of leaderless peptides in omics data, applying open-source tools such as Biopython and BLAST. A Python-based pipeline defines, quantifies, and visualizes leaderless bacterial translation.
